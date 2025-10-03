@@ -34,6 +34,36 @@ app.get('/api/health', (req, res) => {
 // API Routes - Add your custom routes here
 // app.use('/api/your-route', require('./routes/your-route'));
 
+// Supabase test endpoint
+app.get('/api/test-supabase', async (req, res) => {
+  try {
+    const supabase = require('./config/supabase');
+    
+    // Test the connection by getting the current user (should be null if not authenticated)
+    const { data, error } = await supabase.auth.getUser();
+    
+    if (error) {
+      return res.status(500).json({ 
+        message: 'Supabase connection error', 
+        error: error.message 
+      });
+    }
+    
+    res.json({ 
+      message: 'Supabase connected successfully!',
+      user: data.user,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('Supabase test error:', error);
+    res.status(500).json({ 
+      message: 'Failed to connect to Supabase',
+      error: error.message 
+    });
+  }
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
