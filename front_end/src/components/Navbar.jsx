@@ -133,6 +133,7 @@ const NavDropdown = ({ label, icon: Icon, items, isOpen, onToggle }) => {
 };
 
 export default function Navbar() {
+  const navigate = useNavigate();
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
@@ -302,8 +303,8 @@ export default function Navbar() {
                     <div style={{ padding: '8px' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                         {[
-                          { label: 'View Profile', icon: '👤', href: '#' },
-                          { label: 'Account Settings', icon: '⚙️', href: '/profile' },
+                          { label: 'View Profile', icon: '👤', to: '/profile' },
+                          { label: 'Account Settings', icon: '⚙️', to: '/profile' },
                           { label: 'Preferences', icon: '🎨', href: '#' },
                           { label: 'Notifications', icon: '🔔', href: '#' },
                           { label: 'Privacy', icon: '🔒', href: '#' },
@@ -311,7 +312,7 @@ export default function Navbar() {
                         ].map((item, index) => (
                           <a
                             key={index}
-                            href={item.href}
+                            href={item.href || item.to || '#'}
                             style={{
                               display: 'flex',
                               alignItems: 'center',
@@ -323,6 +324,13 @@ export default function Navbar() {
                               fontSize: '0.875rem',
                               fontWeight: item.highlight ? '500' : '400',
                               transition: 'background-color 0.2s ease-in-out'
+                            }}
+                            onClick={(e) => {
+                              if (item.to) {
+                                e.preventDefault();
+                                setProfileDropdownOpen(false);
+                                navigate(item.to);
+                              }
                             }}
                             onMouseEnter={(e) => {
                               e.target.style.backgroundColor = item.highlight ? 'rgba(239, 68, 68, 0.1)' : '#27272A';

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import formBackground from '../../assets/form_background_img.jpg';
 
 const SurveyForm = () => {
+  const navigate = useNavigate();
   const [accountType, setAccountType] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
@@ -41,12 +43,22 @@ const SurveyForm = () => {
       e.target.reset();
       setAccountType('');
       
+      // Redirect to Dashboard after 2 seconds
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 2000);
+      
     } catch (error) {
       console.error('Survey submission error (silent):', error);
       // Even if network fails, show success message
       setSubmitMessage('Survey submitted successfully! Thank you for your time.');
       e.target.reset();
       setAccountType('');
+      
+      // Redirect to Dashboard after 2 seconds
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 2000);
     } finally {
       setIsSubmitting(false);
     }
