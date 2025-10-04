@@ -1,64 +1,113 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const SurveyForm = () => {
+const LoginPage = () => {
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault(); // prevent page refresh
+    // You can add login validation here if needed
+    navigate('/survey'); // go to SurveyForm.jsx
+  };
+
   return (
-    <div style={{ padding: '20px', textAlign: 'center' }}>
-      <h1>Survey Form</h1>
-      <p>This is the survey form page component.</p>
-      <form style={{ maxWidth: '500px', margin: '0 auto', textAlign: 'left' }}>
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>How satisfied are you with our service?</label>
-          <select style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}>
-            <option value="">Please select an option</option>
-            <option value="very-satisfied">Very Satisfied</option>
-            <option value="satisfied">Satisfied</option>
-            <option value="neutral">Neutral</option>
-            <option value="dissatisfied">Dissatisfied</option>
-            <option value="very-dissatisfied">Very Dissatisfied</option>
-          </select>
-        </div>
-        
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>What features would you like to see improved?</label>
-          <div style={{ marginBottom: '5px' }}>
-            <input type="checkbox" id="feature1" />
-            <label htmlFor="feature1" style={{ marginLeft: '5px' }}>User Interface</label>
+    <div 
+      style={{ 
+        position: 'relative',
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden'
+      }}
+    >
+      {/* Fullscreen background image */}
+      <img 
+        src="/Go-team-600x450-1.webp"
+        alt="Background"
+        style={{ 
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          objectFit: 'cover',
+          zIndex: -1
+        }}
+      />
+
+      {/* Logo in the top-right */}
+      <img 
+        src="/TeamIMPACT_Logo_Standard.webp"
+        alt="Logo"
+        style={{ 
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          width: '100px',
+          height: 'auto'
+        }}
+      />
+
+      {/* Login form */}
+      <div 
+        style={{ 
+          background: 'rgba(255, 255, 255, 0.9)', 
+          padding: '30px',
+          borderRadius: '12px',
+          boxShadow: '0px 4px 12px rgba(0,0,0,0.2)',
+          textAlign: 'center',
+          zIndex: 1,
+          width: '100%',
+          maxWidth: '350px'
+        }}
+      >
+        <h1 style={{ marginBottom: '20px' }}>Login</h1>
+        <form style={{ width: '100%' }} onSubmit={handleSubmit}>
+          <div style={{ marginBottom: '15px' }}>
+            <input 
+              type="email" 
+              placeholder="Email" 
+              style={{ 
+                width: '100%', 
+                padding: '10px',
+                borderRadius: '6px',
+                border: '1px solid #ccc'
+              }}
+            />
           </div>
-          <div style={{ marginBottom: '5px' }}>
-            <input type="checkbox" id="feature2" />
-            <label htmlFor="feature2" style={{ marginLeft: '5px' }}>Performance</label>
+          <div style={{ marginBottom: '15px' }}>
+            <input 
+              type="password" 
+              placeholder="Password" 
+              style={{ 
+                width: '100%', 
+                padding: '10px',
+                borderRadius: '6px',
+                border: '1px solid #ccc'
+              }}
+            />
           </div>
-          <div style={{ marginBottom: '5px' }}>
-            <input type="checkbox" id="feature3" />
-            <label htmlFor="feature3" style={{ marginLeft: '5px' }}>Customer Support</label>
-          </div>
-        </div>
-        
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Additional Comments:</label>
-          <textarea 
-            placeholder="Please share any additional feedback..."
-            rows="4"
-            style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
-          />
-        </div>
-        
-        <button 
-          type="submit" 
-          style={{ 
-            padding: '10px 20px', 
-            backgroundColor: '#17a2b8', 
-            color: 'white', 
-            border: 'none', 
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
-          Submit Survey
-        </button>
-      </form>
+          <button 
+            type="submit" 
+            style={{ 
+              width: '100%', 
+              padding: '12px',
+              backgroundColor: '#007bff', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontWeight: 'bold'
+            }}
+          >
+            Login
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
 
-export default SurveyForm;
+export default LoginPage;
