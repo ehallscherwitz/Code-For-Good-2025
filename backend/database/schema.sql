@@ -34,6 +34,21 @@ CREATE TABLE ALUMNI (
 
 );
 
+
+CREATE TABLE ALUMNI (
+
+    alumni_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    alumni_name TEXT NOT NULL,
+    alumni_email TEXT NOT NULL,
+    alumni_phone_number TEXT NOT NULL,
+    location JSONB NOT NULL DEFAULT '{}'::jsonb, 
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+
+
+
+);
+
+
 CREATE TABLE FAMILY (
     parent_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     parent_name TEXT NOT NULL,
@@ -62,3 +77,10 @@ CREATE TABLE ATHLETE_FAMILY (
     athlete_id UUID REFERENCES ATHLETE(athlete_id) ON DELETE CASCADE,
     parent_id UUID REFERENCES FAMILY(parent_id) ON DELETE CASCADE
 );
+
+CREATE TABLE ALUMNI_FAMILY (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    alumni_id UUID REFERENCES ALUMNI(alumni_id) ON DELETE CASCADE,
+    parent_id UUID REFERENCES FAMILY(parent_id) ON DELETE CASCADE
+);
+
