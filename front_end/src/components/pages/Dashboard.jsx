@@ -70,14 +70,21 @@ const Dashboard = () => {
     description: event.event_description || ''
   });
 
-  // Get upcoming events (assuming upcoming means future dates)
-  const upcomingEvents = events
-    .filter(event => {
+  // Get upcoming events, or any events if no upcoming ones exist
+  const upcomingEvents = (() => {
+    // First try to get upcoming events (future dates)
+    const futureEvents = events.filter(event => {
       const eventDate = new Date(event.event_date);
       return eventDate >= new Date(); // Current date or future
-    })
-    .slice(0, 5) // Limit to 5 events
-    .map(formatEventForDisplay);
+    });
+    
+    // If we have upcoming events, use them. Otherwise, use any events
+    const eventsToShow = futureEvents.length > 0 ? futureEvents : events;
+    
+    return eventsToShow
+      .slice(0, 3) // Limit to 3 events
+      .map(formatEventForDisplay);
+  })();
 
   return (
     <>

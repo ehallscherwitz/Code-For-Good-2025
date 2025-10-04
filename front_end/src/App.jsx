@@ -14,6 +14,7 @@ import AthletesPage from './components/pages/AthletesPage';
 import FamiliesPage from './components/pages/FamiliesPage';
 import AlumniPage from './components/pages/AlumniPage';
 import EventsPage from './components/pages/EventsPage';
+import ConnectPage from './components/pages/ConnectPage';
 
 function App() {
   return (
@@ -79,6 +80,11 @@ function App() {
             <Route path="/events" element={
               <Layout>
                 <EventsPage />
+              </Layout>
+            } />
+            <Route path="/connect" element={
+              <Layout>
+                <ConnectPage />
               </Layout>
             } />
           </Routes>

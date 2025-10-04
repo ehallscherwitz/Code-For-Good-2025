@@ -192,7 +192,7 @@ Return STRICT JSON ONLY:
         }
       }
       
-      console.log('Extracted child sport interests:`, childInterests);
+       console.log(`Extracted child sport interests:`, childInterests);
 
       const match = schoolTeams.find(t =>
         childInterests.some(i => i && t.sport && String(t.sport).toLowerCase().includes(i))
