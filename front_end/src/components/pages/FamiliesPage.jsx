@@ -504,23 +504,35 @@ const FamiliesPage = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
+        {/* Hero */}
+        <div className="relative bg-secondary text-secondary-foreground">
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1511895426328-dc8714191300?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3DfA%3D&auto=format&fit=crop&w=2070&q=80')] bg-cover bg-center opacity-20" />
+          <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+            <div className="text-center">
+              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl text-balance">
+                Families Management
+              </h1>
+              <p className="mt-4 text-lg text-secondary-foreground/90 max-w-2xl mx-auto text-pretty">
+                Manage family profiles and child information
+              </p>
+              
+              <div className="mt-8">
+                <button
+                  onClick={() => setShowAddForm(true)}
+                  className="flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 mx-auto"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Family
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Header */}
         <div className="bg-white shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-3xl font-bold text-gray-900">Families Management</h1>
-              <button
-                onClick={() => setShowAddForm(true)}
-                className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
-              >
-                <Plus className="w-4 h-4" />
-                Add Family
-              </button>
-            </div>
-            <p className="text-gray-600 mb-6">
-              Manage family profiles and child information
-            </p>
             
             {/* Search */}
             <div className="max-w-md">
