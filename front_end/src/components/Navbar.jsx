@@ -416,11 +416,7 @@ export default function Navbar() {
                     <div style={{ padding: '8px' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                         {[
-                          { label: 'View Profile', icon: '👤', to: '/profile' },
                           { label: 'Account Settings', icon: '⚙️', to: '/profile' },
-                          { label: 'Preferences', icon: '🎨', href: '#' },
-                          { label: 'Notifications', icon: '🔔', href: '#' },
-                          { label: 'Privacy', icon: '🔒', href: '#' },
                           { label: 'Sign Out', icon: '🚪', highlight: true, action: handleSignOut }
                         ].map((item, index) => (
                           <a
