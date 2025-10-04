@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 import dashboardCarousel1 from '../../assets/dashboard_carhousel_1.webp';
 import dashboardCarousel2 from '../../assets/dashboard_carhousel_2.png';
-import dashboardCarousel3 from '../../assets/dashboard_carhousel_3.png';
+import dashboardCarousel3 from '../../assets/354230563_638881091600196_6648750597725908520_n-1-e1751912214791.jpg';
 
 const Dashboard = () => {
+  const { user } = useAuth();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [userName, setUserName] = useState('');
   
   const carouselImages = [
     dashboardCarousel1,
@@ -27,6 +30,16 @@ const Dashboard = () => {
   }, []);
 
   const isMobile = windowWidth <= 768;
+
+  // Extract user's first name
+  useEffect(() => {
+    if (user) {
+      // Try to get name from user metadata or email
+      const fullName = user.user_metadata?.full_name || user.user_metadata?.name || '';
+      const firstName = fullName ? fullName.split(' ')[0] : user.email?.split('@')[0] || '';
+      setUserName(firstName);
+    }
+  }, [user]);
 
   // Auto-rotate images every 5 seconds
   useEffect(() => {
@@ -129,7 +142,7 @@ const Dashboard = () => {
                 margin: '0 0 16px 0',
                 lineHeight: '1.2'
               }}>
-                Welcome Back
+                Welcome Back{userName ? `, ${userName}!` : '!'}
               </h1>
               <p style={{
                 fontSize: isMobile ? '16px' : '18px',
