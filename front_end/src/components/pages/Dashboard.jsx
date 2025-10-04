@@ -1,71 +1,278 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../Navbar';
+import dashboardCarousel1 from '../../assets/dashboard_carhousel_1.webp';
+import dashboardCarousel2 from '../../assets/dashboard_carhousel_2.png';
+import dashboardCarousel3 from '../../assets/dashboard_carhousel_3.png';
 
 const Dashboard = () => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  
+  const carouselImages = [
+    dashboardCarousel1,
+    dashboardCarousel2,
+    dashboardCarousel3
+  ];
+
+  // Auto-rotate images every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        prevIndex === carouselImages.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [carouselImages.length]);
+
+  // Fetch real events from API
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('http://localhost:5000/api/events');
+        if (!response.ok) {
+          throw new Error('Failed to fetch events');
+        }
+        const data = await response.json();
+        setEvents(data);
+      } catch (err) {
+        setError(err.message);
+        console.error('Error fetching events:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
+  // Transform API events to display format
+  const formatEventForDisplay = (event) => ({
+    id: event.event_id,
+    title: event.event_name || 'Untitled Event',
+    category: event.event_type || 'General',
+    date: new Date(event.event_date).toLocaleDateString('en-US', { 
+      month: 'long', day: 'numeric', year: 'numeric' 
+    }),
+    time: event.event_time || 'TBD',
+    location: event.event_location || 'TBD',
+    participants: 'Open',
+    description: event.event_description || ''
+  });
+
+  // Get upcoming events (assuming upcoming means future dates)
+  const upcomingEvents = events
+    .filter(event => {
+      const eventDate = new Date(event.event_date);
+      return eventDate >= new Date(); // Current date or future
+    })
+    .slice(0, 5) // Limit to 5 events
+    .map(formatEventForDisplay);
+
   return (
     <>
       <Navbar />
-      <div style={{ padding: '20px' }}>
-      <h1 style={{ textAlign: 'center', marginBottom: '30px' }}>Dashboard</h1>
-      <p style={{ textAlign: 'center', marginBottom: '30px' }}>This is the dashboard page component.</p>
-      
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', maxWidth: '1000px', margin: '0 auto' }}>
-        <div style={{ 
-          backgroundColor: '#f8f9fa', 
-          padding: '20px', 
-          borderRadius: '8px', 
-          border: '1px solid #dee2e6',
-          textAlign: 'center'
+      <div style={{ 
+        minHeight: '100vh', 
+        backgroundColor: '#ffffff',
+        padding: '0'
+      }}>
+        <div style={{
+          display: 'flex',
+          minHeight: 'calc(100vh - 60px)', // Adjust based on navbar height
+          gap: '20px',
+          padding: '20px',
+          maxWidth: '1400px',
+          margin: '0 auto'
         }}>
-          <h3 style={{ color: '#007bff', marginBottom: '10px' }}>Total Users</h3>
-          <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '0' }}>1,234</p>
+          {/* Left Content Area */}
+          <div style={{
+            flex: '2',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '20px',
+            textAlign: 'center'
+          }}>
+            {/* Welcome Section */}
+            <div style={{textAlign: 'center'}}>
+              <h1 style={{
+                fontSize: '48px',
+                fontWeight: 'bold',
+                color: '#000000',
+                margin: '0 0 16px 0',
+                lineHeight: '1.2'
+              }}>
+                Welcome Back
+              </h1>
+              <p style={{
+                fontSize: '18px',
+                color: '#000000',
+                margin: '0 0 24px 0',
+                lineHeight: '1.5',
+                width: '100%',
+                textAlign: 'center'
+              }}>
+                Connecting young athletes with college mentors to inspire, empower, and build lasting friendships.
+              </p>
+            </div>
+
+            {/* Image Carousel */}
+            <div style={{
+              position: 'relative',
+              width: '100%',
+              height: '500px',
+              borderRadius: '12px',
+              overflow: 'hidden',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
+            }}>
+              <img
+                src={carouselImages[currentImageIndex]}
+                alt={`Dashboard carousel ${currentImageIndex + 1}`}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  transition: 'opacity 0.5s ease-in-out'
+                }}
+              />
+              
+              {/* Carousel Indicators */}
+              <div style={{
+                position: 'absolute',
+                bottom: '16px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                display: 'flex',
+                gap: '8px',
+                
+              }}>
+                {carouselImages.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentImageIndex(index)}
+                      style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        border: 'none',
+                        backgroundColor: index === currentImageIndex ? '#000000' : '#ffffff',
+                        opacity: index === currentImageIndex ? 1 : 0.6,
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        padding: '0',
+                        minWidth: '8px',
+                        minHeight: '8px'
+                      }}
+                    />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Sidebar - Upcoming Events */}
+          <div style={{
+            flex: '1',
+            maxWidth: '400px'
+          }}>
+            <div style={{
+              backgroundColor: '#f8f9fa',
+              borderRadius: '12px',
+              padding: '24px',
+              height: 'fit-content'
+            }}>
+              <h2 style={{
+                fontSize: '24px',
+                fontWeight: 'bold',
+                color: '#000000',
+                margin: '0 0 20px 0'
+              }}>
+                Upcoming Events
+              </h2>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {loading ? (
+                  <div style={{ textAlign: 'center', padding: '20px', color: '#6c757d' }}>
+                    <div style={{ marginBottom: '10px' }}>Loading events...</div>
+                    <div style={{ fontSize: '12px' }}>Fetching upcoming events...</div>
+                  </div>
+                ) : error ? (
+                  <div style={{ 
+                    backgroundColor: '#ffe6e6', 
+                    border: '1px solid #ffcccc', 
+                    color: '#d63031',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    fontSize: '14px'
+                  }}>
+                    Error loading events: {error}
+                  </div>
+                ) : upcomingEvents.length > 0 ? (
+                  upcomingEvents.map((event, index) => (
+                    <div key={event.id || index} style={{
+                    backgroundColor: '#ffffff',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      marginBottom: '8px'
+                    }}>
+                      <h3 style={{
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        color: '#000000',
+                        margin: '0'
+                      }}>
+                        {event.title}
+                      </h3>
+                      <span style={{
+                        backgroundColor: '#e9ecef',
+                        color: '#000000',
+                        padding: '4px 8px',
+                        borderRadius: '12px',
+                        fontSize: '12px',
+                        fontWeight: '500'
+                      }}>
+                        {event.category}
+                      </span>
+                    </div>
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '14px', color: '#6c757d' }}>📅</span>
+                        <span style={{ fontSize: '14px', color: '#000000' }}>{event.date}</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '14px', color: '#6c757d' }}>🕐</span>
+                        <span style={{ fontSize: '14px', color: '#000000' }}>{event.time}</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '14px', color: '#6c757d' }}>📍</span>
+                        <span style={{ fontSize: '14px', color: '#000000' }}>{event.location}</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '14px', color: '#6c757d' }}>👥</span>
+                        <span style={{ fontSize: '14px', color: '#000000' }}>{event.participants}</span>
+                      </div>
+                    </div>
+                    </div>
+                  ))
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '20px', color: '#6c757d' }}>
+                    <div style={{ fontSize: '16px', marginBottom: '8px' }}>No upcoming events</div>
+                    <div style={{ fontSize: '12px' }}>Check back later for new events</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
-        
-        <div style={{ 
-          backgroundColor: '#f8f9fa', 
-          padding: '20px', 
-          borderRadius: '8px', 
-          border: '1px solid #dee2e6',
-          textAlign: 'center'
-        }}>
-          <h3 style={{ color: '#28a745', marginBottom: '10px' }}>Active Sessions</h3>
-          <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '0' }}>456</p>
-        </div>
-        
-        <div style={{ 
-          backgroundColor: '#f8f9fa', 
-          padding: '20px', 
-          borderRadius: '8px', 
-          border: '1px solid #dee2e6',
-          textAlign: 'center'
-        }}>
-          <h3 style={{ color: '#ffc107', marginBottom: '10px' }}>Pending Tasks</h3>
-          <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '0' }}>23</p>
-        </div>
-        
-        <div style={{ 
-          backgroundColor: '#f8f9fa', 
-          padding: '20px', 
-          borderRadius: '8px', 
-          border: '1px solid #dee2e6',
-          textAlign: 'center'
-        }}>
-          <h3 style={{ color: '#dc3545', marginBottom: '10px' }}>Issues</h3>
-          <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '0' }}>7</p>
-        </div>
-      </div>
-      
-      <div style={{ marginTop: '30px', textAlign: 'center' }}>
-        <h3>Recent Activity</h3>
-        <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'left' }}>
-          <ul style={{ listStyle: 'none', padding: '0' }}>
-            <li style={{ padding: '10px', borderBottom: '1px solid #eee' }}>User John Doe logged in</li>
-            <li style={{ padding: '10px', borderBottom: '1px solid #eee' }}>New survey response received</li>
-            <li style={{ padding: '10px', borderBottom: '1px solid #eee' }}>Profile updated by Jane Smith</li>
-            <li style={{ padding: '10px', borderBottom: '1px solid #eee' }}>System backup completed</li>
-          </ul>
-        </div>
-      </div>
       </div>
     </>
   );

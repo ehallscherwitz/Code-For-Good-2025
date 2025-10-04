@@ -45,7 +45,7 @@ const MainPage = () => {
         Choose a page to navigate to:
       </p>
       
-      <div style={{ maxWidth: '300px', margin: '0 auto' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', maxWidth: '1000px', margin: '0 auto' }}>
         <Link to="/login" style={buttonStyle}>
           🔐 Login Page
         </Link>
@@ -57,6 +57,24 @@ const MainPage = () => {
         </Link>
         <Link to="/dashboard" style={buttonStyle}>
           📊 Dashboard
+        </Link>
+        <Link to="/schools" style={buttonStyle}>
+          🏫 Schools
+        </Link>
+        <Link to="/athletes" style={buttonStyle}>
+          🏃 Athletes
+        </Link>
+        <Link to="/families" style={buttonStyle}>
+          👨‍👩‍👧‍👦 Families
+        </Link>
+        <Link to="/alumni" style={buttonStyle}>
+          🎓 Alumni
+        </Link>
+        <Link to="/events" style={buttonStyle}>
+          📋 Events
+        </Link>
+        <Link to="/create-event" style={buttonStyle}>
+          📅 Create Event
         </Link>
       </div>
       

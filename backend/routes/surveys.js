@@ -1,222 +1,156 @@
 const express = require('express');
 const router = express.Router();
-const supabase = require('../config/supabase');
 
-// @route   POST /api/surveys/family
-// @desc    Save family survey data
-// @access  Public
+// Handle survey submissions for different account types
 router.post('/family', async (req, res) => {
   try {
-    // Accept any data or no data at all
     const {
-      parentName = null,
-      parentPhone = null,
-      parentEmail = null,
-      zipCode = null,
-      childName = null,
-      childDateOfBirth = null,
-      childGender = null,
-      childSport = null,
-      childCondition = null
-    } = req.body || {};
+      parentName,
+      parentPhone,
+      parentEmail,
+      zipCode,
+      childName,
+      childDateOfBirth,
+      childGender,
+      childSport,
+      childCondition
+    } = req.body;
 
-    // No validation - accept whatever data is provided
-
-    // Save family data to database
-    const { data: familyData, error: familyError } = await supabase
-      .from('FAMILY')
-      .insert({
+    // Create family record in database
+    const { data: family, error: familyError } = await req.supabase
+      .from('family')
+      .insert([{
         parent_name: parentName,
         parent_email: parentEmail,
         parent_phone_number: parentPhone,
         location: { zip_code: zipCode },
         children: {
           name: childName,
-          date_of_birth: childDateOfBirth,
+          birth_date: childDateOfBirth,
           gender: childGender,
           sport: childSport,
-          condition: childCondition
+          medical_conditions: childCondition || null
         }
-      })
+      }])
       .select();
 
-    // Always return success, even if database fails
     if (familyError) {
-      console.error('Family survey save error (silent):', familyError);
-      // Don't return error to user - just log it
+      console.error('Family creation error:', familyError);
+      return res.status(500).json({ 
+        error: 'Failed to create family', 
+        details: familyError.message 
+      });
     }
 
     res.json({
-      message: 'Family survey saved successfully',
-      data: familyData ? familyData[0] : null,
-      timestamp: new Date().toISOString()
+      message: 'Family survey submitted successfully',
+      family_id: family[0].parent_id,
+      data: family[0]
     });
 
   } catch (error) {
-    console.error('Family survey server error (silent):', error);
-    // Always return success, even if something goes wrong
-    res.json({
-      message: 'Family survey saved successfully',
-      data: null,
-      timestamp: new Date().toISOString()
+    console.error('Survey submission error:', error);
+    res.status(500).json({ 
+      error: 'Failed to process family survey',
+      details: error.message 
     });
   }
 });
 
-// @route   POST /api/surveys/athlete
-// @desc    Save athlete survey data
-// @access  Public
 router.post('/athlete', async (req, res) => {
   try {
-    // Accept any data or no data at all
     const {
-      athleteName = null,
-      athleteEmail = null,
-      athletePhone = null,
-      athleteLocation = null,
-      athleteSport = null,
-      athleteGraduationDate = null
-    } = req.body || {};
+      athleteName,
+      athleteEmail,
+      athletePhone,
+      athleteLocation,
+      athleteSport,
+      athleteGraduationDate
+    } = req.body;
 
-    // No validation - accept whatever data is provided
-
-    // Extract graduation year from date if provided
-    const graduationYear = athleteGraduationDate ? new Date(athleteGraduationDate).getFullYear() : null;
-
-    // Save athlete data to database
-    const { data: athleteData, error: athleteError } = await supabase
-      .from('ATHLETE')
-      .insert({
+    // Create athlete record in database
+    const { data: athlete, error: athleteError } = await req.supabase
+      .from('athlete')
+      .insert([{
         athlete_name: athleteName,
         athlete_email: athleteEmail,
-        phone_number: athletePhone,
+        phone_number: '+1' + athletePhone.replace(/\D/g, ''), // Clean and format phone
         athlete_address: athleteLocation,
-        graduation_year: graduationYear,
-        sport: athleteSport
-      })
+        graduation_year: new Date(athleteGraduationDate).getFullYear()
+      }])
       .select();
 
-    // Always return success, even if database fails
     if (athleteError) {
-      console.error('Athlete survey save error (silent):', athleteError);
-      // Don't return error to user - just log it
+      console.error('Athlete creation error:', athleteError);
+      return res.status(500).json({ 
+        error: 'Failed to create athlete', 
+        details: athleteError.message 
+      });
     }
 
     res.json({
-      message: 'Athlete survey saved successfully',
-      data: athleteData ? athleteData[0] : null,
-      timestamp: new Date().toISOString()
+      message: 'Athlete survey submitted successfully',
+      athlete_id: athlete[0].athlete_id,
+      data: athlete[0]
     });
 
   } catch (error) {
-    console.error('Athlete survey server error (silent):', error);
-    // Always return success, even if something goes wrong
-    res.json({
-      message: 'Athlete survey saved successfully',
-      data: null,
-      timestamp: new Date().toISOString()
+    console.error('Survey submission error:', error);
+    res.status(500).json({ 
+      error: 'Failed to process athlete survey',
+      details: error.message 
     });
   }
 });
 
-// @route   POST /api/surveys/coach
-// @desc    Save coach survey data
-// @access  Public
 router.post('/coach', async (req, res) => {
   try {
-    // Accept any data or no data at all
     const {
-      coachName = null,
-      coachEmail = null,
-      coachPhone = null,
-      coachSchool = null
-    } = req.body || {};
+      coachName,
+      coachEmail,
+      coachPhone,
+      coachSchool
+    } = req.body;
 
-    // No validation - accept whatever data is provided
-
-    let schoolId = null;
-
-    // Only try to create/find school if coachSchool is provided
-    if (coachSchool) {
-      let { data: schoolData, error: schoolError } = await supabase
-        .from('SCHOOL')
-        .select('id')
-        .eq('name', coachSchool)
-        .single();
-
-      if (schoolError && schoolError.code === 'PGRST116') {
-        // School doesn't exist, create it
-        const { data: newSchoolData, error: newSchoolError } = await supabase
-          .from('SCHOOL')
-          .insert({
-            name: coachSchool,
-            city: 'Unknown' // Default city, can be updated later
-          })
-          .select();
-
-        if (newSchoolError) {
-          console.error('School creation error (silent):', newSchoolError);
-          // Don't return error - just continue without school
-          schoolId = null;
-        }
-
-        if (newSchoolData && newSchoolData[0]) {
-          schoolId = newSchoolData[0].id;
-        }
-      } else if (schoolError) {
-        console.error('School lookup error (silent):', schoolError);
-        // Don't return error - just continue without school
-        schoolId = null;
-      } else {
-        schoolId = schoolData.id;
-      }
-    }
-
-    // Save coach data to database
-    const { data: coachData, error: coachError } = await supabase
-      .from('COACH')
-      .insert({
-        coach_name: coachName,
-        coach_email: coachEmail,
-        coach_phone: coachPhone,
-        school_id: schoolId
-      })
-      .select();
-
-    // Always return success, even if database fails
-    if (coachError) {
-      console.error('Coach survey save error (silent):', coachError);
-      // Don't return error to user - just log it
-    }
+    // For now, we'll just log coach data since there's no coaches table
+    // In the future, you might want to create a COACHES table
+    
+    console.log('Coach survey data:', {
+      name: coachName,
+      email: coachEmail,
+      phone: coachPhone,
+      school: coachSchool
+    });
 
     res.json({
-      message: 'Coach survey saved successfully',
-      data: coachData ? coachData[0] : null,
-      timestamp: new Date().toISOString()
+      message: 'Coach survey submitted successfully',
+      note: 'Coach information logged. Contact administrative team for account setup.'
     });
 
   } catch (error) {
-    console.error('Coach survey server error (silent):', error);
-    // Always return success, even if something goes wrong
-    res.json({
-      message: 'Coach survey saved successfully',
-      data: null,
-      timestamp: new Date().toISOString()
+    console.error('Survey submission error:', error);
+    res.status(500).json({ 
+      error: 'Failed to process coach survey',
+      details: error.message 
     });
   }
 });
 
-// @route   GET /api/surveys/all
-// @desc    Get all survey submissions (for admin purposes)
-// @access  Public (should be protected in production)
+// Get all survey submissions
 router.get('/all', async (req, res) => {
   try {
-    // Get all survey data
-    const [familyData, athleteData, coachData] = await Promise.all([
-      supabase.from('FAMILY').select('*'),
-      supabase.from('ATHLETE').select('*'),
-      supabase.from('COACH').select('*, SCHOOL(name)')
-    ]);
+    // Get family data
+    const { data: familyData, error: familyError } = await req.supabase
+      .from('family')
+      .select('*');
+
+    // Get athlete data
+    const { data: athleteData, error: athleteError } = await req.supabase
+      .from('athlete')
+      .select('*');
+
+    // For coaches, we don't have a table yet, so return empty array
+    const coachData = { data: [], error: null };
 
     if (familyData.error || athleteData.error || coachData.error) {
       return res.status(500).json({
@@ -231,8 +165,7 @@ router.get('/all', async (req, res) => {
         families: familyData.data,
         athletes: athleteData.data,
         coaches: coachData.data
-      },
-      timestamp: new Date().toISOString()
+      }
     });
 
   } catch (error) {

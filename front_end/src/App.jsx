@@ -8,6 +8,11 @@ import SurveyForm from './components/pages/SurveyForm';
 import Dashboard from './components/pages/Dashboard';
 import CreateEventPage from "./components/pages/CreateEventPage.jsx";
 import AuthCallback from './components/pages/AuthCallback';
+import SchoolsPage from './components/pages/SchoolsPage';
+import AthletesPage from './components/pages/AthletesPage';
+import FamiliesPage from './components/pages/FamiliesPage';
+import AlumniPage from './components/pages/AlumniPage';
+import EventsPage from './components/pages/EventsPage';
 import './App.css';
 
 
@@ -19,11 +24,16 @@ function App() {
           <Routes>
             <Route path="/" element={<MainPage />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/survey" element={<SurveyForm />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/create-event" element={<CreateEventPage />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/schools" element={<SchoolsPage />} />
+            <Route path="/athletes" element={<AthletesPage />} />
+            <Route path="/families" element={<FamiliesPage />} />
+            <Route path="/alumni" element={<AlumniPage />} />
+            <Route path="/events" element={<EventsPage />} />
           </Routes>
         </div>
       </Router>
