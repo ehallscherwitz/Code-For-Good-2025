@@ -12,6 +12,7 @@ const familiesRouter = require('./routes/families');
 const authRouter = require('./routes/auth');
 const surveysRouter = require('./routes/surveys');
 const eventsRouter = require('./routes/events');
+const scrapbookRouter = require('./routes/scrapbook');
 
 const recommendSchools = require('./routes/gemini');
 
@@ -47,7 +48,8 @@ app.get('/', (req, res) => {
       athletes: '/api/athletes',
       alumni: '/api/alumni',
       families: '/api/families',
-      events: '/api/events'
+      events: '/api/events',
+      scrapbook: '/api/scrapbook'
     }
   });
 });
@@ -69,6 +71,7 @@ app.use('/api/athletes', athletesRouter);
 app.use('/api/alumni', alumniRouter);
 app.use('/api/families', familiesRouter);
 app.use('/api/events', eventsRouter);
+app.use('/api/scrapbook', scrapbookRouter);
 
 app.get('/api/test-supabase', async (req, res) => {
   try {
@@ -151,7 +154,11 @@ app.use('*', (req, res) => {
       'GET /api/events/:event_id',
       'POST /api/events',
       'PUT /api/events/:event_id',
-      'DELETE /api/events/:event_id'
+      'DELETE /api/events/:event_id',
+      'GET /api/scrapbook',
+      'GET /api/scrapbook/all',
+      'GET /api/scrapbook/:id',
+      'DELETE /api/scrapbook/:id'
     ]
   });
 });

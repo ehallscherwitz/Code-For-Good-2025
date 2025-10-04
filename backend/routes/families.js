@@ -13,6 +13,23 @@ router.get('/', async (req, res) => {
 });
 
 
+// Get family by Supabase user_id
+router.get('/user/:user_id', async (req, res) => {
+  try {
+    const { data, error } = await req.supabase
+      .from('family')
+      .select('*')
+      .eq('user_id', req.params.user_id)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!data) return res.status(404).json({ error: 'Family not found' });
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.get('/:parent_id', async (req, res) => {
   try {
     const { data, error } = await req.supabase

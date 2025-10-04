@@ -3,7 +3,7 @@ const router = express.Router();
 
 router.get('/', async (req, res) => {
   try {
-    const { data, error } = await req.supabase.from('EVENT').select('*');
+    const { data, error } = await req.supabase.from('event').select('*');
     if (error) throw error;
     res.json(data);
   } catch (error) {
@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
 
 router.get('/family/:family_id', async (req, res) => {
   try {
-    const { data, error } = await req.supabase.from('EVENT').select('*').eq('parent_id', req.params.family_id);
+    const { data, error } = await req.supabase.from('event').select('*').eq('parent_id', req.params.family_id);
     if (error) throw error;
     res.json(data); 
   } catch (error) {
@@ -23,7 +23,7 @@ router.get('/family/:family_id', async (req, res) => {
 
 router.get('/athlete/:athlete_id', async (req, res) => {
   try {
-    const { data, error } = await req.supabase.from('EVENT').select('*').eq('athlete_id', req.params.athlete_id);
+    const { data, error } = await req.supabase.from('event').select('*').eq('athlete_id', req.params.athlete_id);
     if (error) throw error;
     res.json(data);
   } catch (error) {
@@ -34,7 +34,7 @@ router.get('/athlete/:athlete_id', async (req, res) => {
 router.get('/:event_id', async (req, res) => {
   try {
     const eventId = req.params.event_id;
-    const { data, error } = await req.supabase.from('EVENT').select('*').eq('event_id', eventId);
+    const { data, error } = await req.supabase.from('event').select('*').eq('event_id', eventId);
     if (error) throw error;
     
     if (!data || data.length === 0) {
@@ -63,25 +63,26 @@ router.post('/', async (req, res) => {
       athlete_id
     } = req.body;
 
-    if (!title || !event_date || !event_time || !location) {
+    if (!title || !description || !event_date || !event_time || !location) {
       return res.status(400).json({ 
-        error: 'Missing required fields: title, event_date, event_time, location' 
+        error: 'Missing required fields: title, description, event_date, event_time, location' 
       });
     }
 
     const eventData = {
       event_name: title,
-      event_description: description || null,
+      event_description: description,
       event_date,
       event_time,
       event_location: location,
       event_status: 'active',
+      event_type: event_type || null,
       parent_id: parent_id || null,
       athlete_id: athlete_id || null,
       team_id: null // Can be set later if needed
     };
 
-    const { data, error } = await req.supabase.from('EVENT').insert([eventData]).select();
+    const { data, error } = await req.supabase.from('event').insert([eventData]).select();
 
     if (error) throw error;
 
@@ -103,7 +104,7 @@ router.put('/:event_id', async (req, res) => {
     delete updates.event_id;
 
     const { data, error } = await req.supabase
-      .from('EVENT')
+      .from('event')
       .update(updates)
       .eq('event_id', eventId)
       .select();
@@ -128,7 +129,7 @@ router.delete('/:event_id', async (req, res) => {
   try {
     const eventId = req.params.event_id;
     
-    const { error } = await req.supabase.from('EVENT').delete().eq('event_id', eventId);
+    const { error } = await req.supabase.from('event').delete().eq('event_id', eventId);
     
     if (error) throw error;
 
