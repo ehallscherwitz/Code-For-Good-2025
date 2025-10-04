@@ -1,7 +1,7 @@
 CREATE TABLE SCHOOL (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    children JSONB NOT NULL DEFAULT '{}'::jsonb,
-    city TEXT NOT NULL
+    location JSONB NOT NULL DEFAULT '{}'::jsonb,
+
 );
 
 CREATE TABLE TEAM (
@@ -32,8 +32,6 @@ CREATE TABLE ALUMNI (
     location JSONB NOT NULL DEFAULT '{}'::jsonb, 
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 
-
-
 );
 
 
@@ -43,24 +41,9 @@ CREATE TABLE FAMILY (
     parent_email TEXT NOT NULL,
     parent_phone_number TEXT NOT NULL,
     location JSONB NOT NULL DEFAULT '{}'::jsonb,
-    children JSONB NOT NULL DEFAULT '{}'::jsonb
-);
-
-CREATE TABLE TEAM_FAMILY (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    children JSONB NOT NULL DEFAULT '{}'::jsonb,
     team_id UUID REFERENCES TEAM(team_id) ON DELETE CASCADE,
-    parent_id UUID REFERENCES FAMILY(parent_id) ON DELETE CASCADE
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE ATHLETE_FAMILY (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    athlete_id UUID REFERENCES ATHLETE(athlete_id) ON DELETE CASCADE,
-    parent_id UUID REFERENCES FAMILY(parent_id) ON DELETE CASCADE
-);
-
-CREATE TABLE ALUMNI_FAMILY (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    alumni_id UUID REFERENCES ALUMNI(alumni_id) ON DELETE CASCADE,
-    parent_id UUID REFERENCES FAMILY(parent_id) ON DELETE CASCADE
-);
 

@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
   });
 
 
-  router.get('/:id', async(req, res) =>){
+  router.get('/:id', async(req, res) =>{
     try{
         id =req.params.id;
         const {data, error} = await req.supabase.from('school').select('*').eq('id', id);
@@ -28,30 +28,9 @@ router.get('/', async (req, res) => {
 
         res.status(500).json({error: error.message});
     }
-    };
+});
 
 
-router.post('/', async (req, res) => {
-    try {
-      const { city, children = {} } = req.body;
-      const { data, error } = await req.supabase.from('school').insert({ city, children });
-      if (error) throw error;
-      res.json(data);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-  router.put('/:id', async (req, res) => {
-    try {
-      const { city, children } = req.body;
-      const { data, error } = await req.supabase.from('school').update({ city, children }).eq('id', req.params.id);
-      if (error) throw error;
-      res.json(data);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  });
   
 
   router.delete('/:id', async (req, res) => {
