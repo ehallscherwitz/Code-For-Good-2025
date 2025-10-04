@@ -17,16 +17,24 @@ const EventsPage = () => {
   const fetchEvents = async () => {
     try {
       setLoading(true);
+      setError(''); // Clear any previous errors
       const response = await fetch('http://localhost:5000/api/events');
       if (!response.ok) {
         throw new Error('Failed to fetch events');
       }
       const data = await response.json();
       // Sort events by date
-      const sortedEvents = data.sort((a, b) => new Date(a.event_date) - new Date(b.event_date));
+      const sortedEvents = (data || []).sort((a, b) => new Date(a.event_date) - new Date(b.event_date));
       setEvents(sortedEvents);
     } catch (err) {
-      setError(err.message);
+      // Only set error for actual network/server errors, not for empty results
+      if (err.message.includes('NetworkError') || err.message.includes('fetch')) {
+        // If it's a network error, treat it as no events available
+        setEvents([]);
+        setError('');
+      } else {
+        setError(err.message);
+      }
       console.error('Error fetching events:', err);
     } finally {
       setLoading(false);

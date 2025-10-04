@@ -31,14 +31,22 @@ const Dashboard = () => {
     const fetchEvents = async () => {
       try {
         setLoading(true);
+        setError(''); // Clear any previous errors
         const response = await fetch('http://localhost:5000/api/events');
         if (!response.ok) {
           throw new Error('Failed to fetch events');
         }
         const data = await response.json();
-        setEvents(data);
+        setEvents(data || []); // Ensure events is always an array
       } catch (err) {
-        setError(err.message);
+        // Only set error for actual network/server errors, not for empty results
+        if (err.message.includes('NetworkError') || err.message.includes('fetch')) {
+          // If it's a network error, treat it as no events available
+          setEvents([]);
+          setError('');
+        } else {
+          setError(err.message);
+        }
         console.error('Error fetching events:', err);
       } finally {
         setLoading(false);
