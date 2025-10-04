@@ -44,7 +44,7 @@ function App() {
               </Layout>
             } />
             <Route path="/survey" element={
-              <Layout>
+              <Layout showNavbar={false} fullscreen={true}>
                 <SurveyForm />
               </Layout>
             } />
