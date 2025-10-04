@@ -13,7 +13,7 @@ const authRouter = require('./routes/auth');
 const surveysRouter = require('./routes/surveys');
 const eventsRouter = require('./routes/events');
 
-const recommendSchools = require('./routes/recommendations');
+const recommendSchools = require('./routes/gemini');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -30,7 +30,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/api/recommendations', recommendSchools);
+app.use('/api/gemini', recommendSchools);
+
 
 app.get('/', (req, res) => {
   res.json({

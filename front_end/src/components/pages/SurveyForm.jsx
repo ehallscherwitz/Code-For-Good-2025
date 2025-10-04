@@ -8,6 +8,8 @@ const COLORS = {
   YELLOW: '#ffdb3b',
 };
 
+const API_BASE = import.meta?.env?.VITE_API_BASE || 'http://localhost:5000';
+
 const SurveyForm = () => {
   const navigate = useNavigate();
   const [accountType, setAccountType] = useState('');
@@ -67,7 +69,8 @@ const SurveyForm = () => {
       });
       const payload = buildPayload(accountType, raw);
 
-      const res = await fetch(`http://localhost:5000/api/surveys/${accountType}`, {
+      // 1) Create Family/Athlete
+      const res = await fetch(`${API_BASE}/api/surveys/${accountType}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -75,6 +78,31 @@ const SurveyForm = () => {
       if (!res.ok) {
         const msg = await res.text().catch(() => '');
         throw new Error(msg || `Request failed with ${res.status}`);
+      }
+      const created = await res.json();
+
+      // 2) If Family, immediately call Gemini to rank schools, select a team,
+      //    and persist family.team_id on the backend.
+      if (accountType === 'family') {
+        const familyId = created?.parent_id || created?.family_id;
+        if (!familyId) {
+          throw new Error('Family created but parent_id not returned by API');
+        }
+
+        const rankRes = await fetch(`${API_BASE}/api/gemini/family/${familyId}`, {
+          method: 'POST'
+        });
+
+        // Non-blocking: even if Gemini fails, we still move forward.
+        if (!rankRes.ok) {
+          const msg = await rankRes.text().catch(() => '');
+          console.warn('Gemini ranking failed:', msg || rankRes.status);
+        } else {
+          const ranked = await rankRes.json().catch(() => ({}));
+          if (!ranked?.selected_team_id) {
+            console.warn('Ranking succeeded but no selected_team_id persisted');
+          }
+        }
       }
 
       setSubmitMessage({ text: 'Survey submitted successfully! Thank you for your time.', ok: true });
