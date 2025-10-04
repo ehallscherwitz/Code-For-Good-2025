@@ -1,8 +1,11 @@
 import React from 'react';
+import Navbar from '../Navbar';
 
 const Dashboard = () => {
   return (
-    <div style={{ padding: '20px' }}>
+    <>
+      <Navbar />
+      <div style={{ padding: '20px' }}>
       <h1 style={{ textAlign: 'center', marginBottom: '30px' }}>Dashboard</h1>
       <p style={{ textAlign: 'center', marginBottom: '30px' }}>This is the dashboard page component.</p>
       
@@ -63,7 +66,8 @@ const Dashboard = () => {
           </ul>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
