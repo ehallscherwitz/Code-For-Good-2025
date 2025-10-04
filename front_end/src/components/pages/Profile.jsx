@@ -20,6 +20,9 @@ const DEFAULT_PROFILE = {
   email: "",
   phone: "",
   avatarUrl: null,
+  graduationYear: "",
+  sport: "",
+  children: {},
 };
 
 const BRAND_NAVY = "#1d3e7b";
@@ -49,31 +52,114 @@ export default function Profile() {
     }
   }, [user, loading, navigate]);
 
-  // Initialize profile with Google user data
+  // Initialize profile with backend data
   useEffect(() => {
-    if (user) {
+    if (!user) return;
+
+    const fetchUserProfile = async () => {
+    try {
+      // First try to get Google profile data as fallback
       const googleProfile = {
         name: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || "User",
         email: user.email || "",
         avatarUrl: user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
       };
 
+      // Try to fetch from backend first
+      let backendData = null;
+      
+      // Try athlete endpoint first
+      try {
+        const athleteResponse = await fetch('http://localhost:5000/api/athletes');
+        if (athleteResponse.ok) {
+          const athletes = await athleteResponse.json();
+          const userAthlete = athletes.find(athlete => 
+            athlete.athlete_email === user.email || 
+            athlete.athlete_name === googleProfile.name
+          );
+          
+          if (userAthlete) {
+            backendData = {
+              role: "athlete",
+              name: userAthlete.athlete_name || googleProfile.name,
+              email: userAthlete.athlete_email || googleProfile.email,
+              phone: userAthlete.phone_number || "",
+              location: userAthlete.athlete_address || "",
+              bio: `College athlete passionate about making a difference in the community. Graduation year: ${userAthlete.graduation_year || 'TBD'}.`,
+              avatarUrl: googleProfile.avatarUrl,
+              graduationYear: userAthlete.graduation_year,
+              sport: userAthlete.sport || ""
+            };
+          }
+        }
+      } catch (error) {
+        console.log('Error fetching athlete data:', error);
+      }
+
+      // If not found as athlete, try family endpoint
+      if (!backendData) {
+        try {
+          const familyResponse = await fetch('http://localhost:5000/api/families');
+          if (familyResponse.ok) {
+            const families = await familyResponse.json();
+            const userFamily = families.find(family => 
+              family.parent_email === user.email || 
+              family.parent_name === googleProfile.name
+            );
+            
+            if (userFamily) {
+              backendData = {
+                role: "family",
+                name: userFamily.parent_name || googleProfile.name,
+                email: userFamily.parent_email || googleProfile.email,
+                phone: userFamily.parent_phone_number || "",
+                location: typeof userFamily.location === 'object' ? 
+                  `${userFamily.location.city || ''}, ${userFamily.location.state || ''}`.trim().replace(/^,\s*|,\s*$/g, '') : 
+                  userFamily.location || "",
+                bio: `Family member passionate about supporting young athletes. ${userFamily.children ? `Children: ${JSON.stringify(userFamily.children)}` : ''}`,
+                avatarUrl: googleProfile.avatarUrl,
+                children: userFamily.children || {}
+              };
+            }
+          }
+        } catch (error) {
+          console.log('Error fetching family data:', error);
+        }
+      }
+
+      // Merge with local storage data
       try {
         const raw = localStorage.getItem(STORAGE_INFO);
         const savedData = raw ? JSON.parse(raw) : {};
         
-        // Merge Google data with saved data, prioritizing saved data for non-Google fields
+        // Priority: savedData > backendData > googleProfile > DEFAULT_PROFILE
         setData({ 
           ...DEFAULT_PROFILE, 
           ...googleProfile, 
+          ...(backendData || {}),
           ...savedData,
-          // Always use Google avatar if available, unless user has uploaded their own
-          avatarUrl: savedData.avatarUrl || googleProfile.avatarUrl
+          // Always preserve user-uploaded avatar if exists
+          avatarUrl: savedData.avatarUrl || (backendData?.avatarUrl) || googleProfile.avatarUrl
         });
-      } catch (_) {
-        setData({ ...DEFAULT_PROFILE, ...googleProfile });
+      } catch (error) {
+        // If localStorage fails, use backend or google data
+        setData({ 
+          ...DEFAULT_PROFILE, 
+          ...googleProfile, 
+          ...(backendData || {})
+        });
       }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      // Fallback to Google data only
+      const googleProfile = {
+        name: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || "User",
+        email: user.email || "",
+        avatarUrl: user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
+      };
+      setData({ ...DEFAULT_PROFILE, ...googleProfile });
     }
+    };    fetchUserProfile();
   }, [user]);
 
   // sync draft on edit
@@ -96,16 +182,20 @@ export default function Profile() {
     setGeoErr("");
   };
 
-  const save = () => {
+  const save = async () => {
     setBusy(true);
-    setTimeout(() => {
+    
+    try {
+      localStorage.setItem(STORAGE_INFO, JSON.stringify(draft));
       setData(draft);
-      try {
-        localStorage.setItem(STORAGE_INFO, JSON.stringify(draft));
-      } catch (_) {}
-      setBusy(false);
       setEditing(false);
-    }, 350);
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      setData(draft);
+      setEditing(false);
+    } finally {
+      setBusy(false);
+    }
   };
 
   async function useMyLocation() {
@@ -342,145 +432,309 @@ export default function Profile() {
     },
   };
 
+  // Card styles
+  const cardStyles = {
+    card: {
+      backgroundColor: '#ffffff',
+      border: '1px solid #e5e7eb',
+      borderRadius: '12px',
+      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+      marginBottom: '24px',
+    },
+    cardHeader: {
+      padding: '24px 24px 0 24px',
+    },
+    cardContent: {
+      padding: '24px',
+    },
+    cardTitle: {
+      fontSize: '20px',
+      fontWeight: '600',
+      color: '#111827',
+      margin: '0 0 8px 0',
+    },
+    cardDescription: {
+      fontSize: '14px',
+      color: '#6b7280',
+      margin: '0',
+    },
+  };
+
   return (
     <div style={s.page}>
-      <div style={s.card}>
-        {/* Avatar (bigger) */}
-        <div style={s.avatarWrap}>
-          {editing ? (
-            draft.avatarUrl ? (
-              // eslint-disable-next-line jsx-a11y/alt-text
-              <img src={draft.avatarUrl} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            ) : (
-              <div style={s.avatarFallback}>{initials(draft.name)}</div>
-            )
-          ) : data.avatarUrl ? (
-            // eslint-disable-next-line jsx-a11y/alt-text
-            <img src={data.avatarUrl} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-          ) : (
-            <div style={s.avatarFallback}>{initialsText}</div>
-          )}
-        </div>
-
-        {/* Name + Pronouns (bigger) */}
-        <div style={s.titleRow}>
-          {!editing ? (
-            <>
-              <h1 style={s.h1}>{data.name}</h1>
-              {data.pronouns && <span style={s.pronouns}>{data.pronouns}</span>}
-            </>
-          ) : (
-            <>
-              <div style={s.inputRow}>
-                <input
-                  style={s.input}
-                  value={draft.name}
-                  onChange={(e) => setDraft((p) => ({ ...p, name: e.target.value }))}
-                  placeholder="Full name"
-                />
-                <input
-                  style={{ ...s.input, ...s.inputSmall }}
-                  value={draft.pronouns}
-                  onChange={(e) => setDraft((p) => ({ ...p, pronouns: e.target.value }))}
-                  placeholder="Pronouns"
-                />
-              </div>
-              <label style={s.file}>
-                <input
-                  type="file"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  onChange={(e) => onAvatarFile(e.target.files?.[0])}
-                />
-                Upload new photo
-              </label>
-            </>
-          )}
-        </div>
-
-        {/* Bio */}
-        <div style={{ width: "100%", maxWidth: 680 }}>
-          <div style={s.label}>Bio</div>
-          {editing ? (
-            <textarea
-              rows={4}
-              style={s.textarea}
-              value={draft.bio}
-              onChange={(e) => setDraft((p) => ({ ...p, bio: e.target.value }))}
-              placeholder="Tell your story…"
-            />
-          ) : (
-            <p style={s.bio}>{data.bio}</p>
-          )}
-        </div>
-
-        {/* Email */}
-        {data.email && (
-          <div style={{ width: "100%", maxWidth: 680, textAlign: "center" }}>
-            <div style={s.label}>Email</div>
-            <div style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "12px 16px",
-              borderRadius: 999,
-              background: "rgba(29, 62, 123, 0.08)",
-              border: "1px solid rgba(29, 62, 123, 0.2)",
-              color: BRAND_NAVY,
-              fontWeight: 600,
-              fontSize: 16,
+      <div style={{ maxWidth: '896px', margin: '0 auto' }}>
+        {/* Profile Header Card */}
+        <div style={cardStyles.card}>
+          <div style={cardStyles.cardContent}>
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: window.innerWidth < 768 ? 'column' : 'row',
+              gap: '24px', 
+              alignItems: 'flex-start' 
             }}>
-              <span>✉️</span>
-              {data.email}
+              {/* Avatar */}
+              <div style={{ position: 'relative' }}>
+                <div style={s.avatarWrap}>
+                  {editing ? (
+                    draft.avatarUrl ? (
+                      <img src={draft.avatarUrl} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      <div style={s.avatarFallback}>{initials(draft.name)}</div>
+                    )
+                  ) : data.avatarUrl ? (
+                    <img src={data.avatarUrl} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  ) : (
+                    <div style={s.avatarFallback}>{initialsText}</div>
+                  )}
+                </div>
+                {editing && (
+                  <label style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    right: 0,
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    backgroundColor: '#f3f4f6',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    fontSize: '18px',
+                  }}>
+                    📷
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      onChange={(e) => onAvatarFile(e.target.files?.[0])}
+                    />
+                  </label>
+                )}
+              </div>
+
+              {/* Profile Info */}
+              <div style={{ flex: 1 }}>
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: window.innerWidth < 768 ? 'column' : 'row',
+                  justifyContent: 'space-between', 
+                  alignItems: window.innerWidth < 768 ? 'flex-start' : 'center',
+                  gap: '16px',
+                  marginBottom: '16px' 
+                }}>
+                  <div>
+                    <h1 style={s.h1}>{editing ? draft.name : data.name}</h1>
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                      <span style={s.pronouns}>
+                        {data.role === "athlete" ? "Athlete" : "Family Member"}
+                      </span>
+                      {data.pronouns && <span style={s.pronouns}>{data.pronouns}</span>}
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    {!editing ? (
+                      <button style={s.btn} onClick={startEdit}>Edit Profile</button>
+                    ) : (
+                      <>
+                        <button style={s.btnGhost} onClick={cancelEdit} disabled={busy}>
+                          Cancel
+                        </button>
+                        <button style={s.btn} onClick={save} disabled={busy}>
+                          💾 {busy ? "Saving..." : "Save Changes"}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Profile Details Grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6b7280' }}>
+                    <span>📍</span>
+                    <span>{data.location || "Add your location"}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6b7280' }}>
+                    <span>✉️</span>
+                    <span>{data.email}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6b7280' }}>
+                    <span>📞</span>
+                    <span>{data.phone || "Add phone number"}</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        )}
-
-        {/* Location (always visible, high contrast) */}
-        <div style={{ width: "100%", maxWidth: 680, textAlign: "center" }}>
-          <div style={s.label}>Current Location</div>
-          {editing ? (
-            <div style={s.inputRow}>
-              <input
-                style={s.input}
-                value={draft.location}
-                onChange={(e) => setDraft((p) => ({ ...p, location: e.target.value }))}
-                placeholder="City, State"
-              />
-              <button
-                type="button"
-                style={s.btnSecondary}
-                onClick={useMyLocation}
-                disabled={busy}
-              >
-                Use my location
-              </button>
-            </div>
-          ) : (
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <div style={s.locationPill}>
-                <span>📍</span>
-                {data.location || "Add your location"}
-              </div>
-            </div>
-          )}
-          {geoErr && <div style={s.note}>{geoErr}</div>}
         </div>
 
-        {/* Actions */}
-        <div style={s.actions}>
-          {!editing ? (
-            <button style={s.btn} onClick={startEdit}>Edit Profile</button>
-          ) : (
-            <>
-              <button style={s.btn} onClick={save} disabled={busy}>
-                {busy ? "Saving…" : "Save"}
-              </button>
-              <button style={s.btnGhost} onClick={cancelEdit} disabled={busy}>
-                Cancel
-              </button>
-            </>
-          )}
+        {/* About Section */}
+        <div style={cardStyles.card}>
+          <div style={cardStyles.cardHeader}>
+            <h2 style={cardStyles.cardTitle}>About</h2>
+            <p style={cardStyles.cardDescription}>Tell others about yourself and what you're looking for</p>
+          </div>
+          <div style={cardStyles.cardContent}>
+            {editing ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label style={{ ...s.label, display: 'block', marginBottom: '8px' }}>Full Name</label>
+                  <input
+                    style={s.input}
+                    value={draft.name}
+                    onChange={(e) => setDraft((p) => ({ ...p, name: e.target.value }))}
+                    placeholder="Full name"
+                  />
+                </div>
+                <div>
+                  <label style={{ ...s.label, display: 'block', marginBottom: '8px' }}>Bio</label>
+                  <textarea
+                    rows={4}
+                    style={s.textarea}
+                    value={draft.bio}
+                    onChange={(e) => setDraft((p) => ({ ...p, bio: e.target.value }))}
+                    placeholder="Tell us about yourself..."
+                  />
+                </div>
+              </div>
+            ) : (
+              <p style={{ color: '#374151', lineHeight: '1.6', margin: '0' }}>{data.bio}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Contact Information */}
+        <div style={cardStyles.card}>
+          <div style={cardStyles.cardHeader}>
+            <h2 style={cardStyles.cardTitle}>Contact Information</h2>
+            <p style={cardStyles.cardDescription}>How others can reach you</p>
+          </div>
+          <div style={cardStyles.cardContent}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+              <div>
+                <label style={{ ...s.label, display: 'block', marginBottom: '8px' }}>Email</label>
+                <input
+                  type="email"
+                  style={{ ...s.input, opacity: editing ? 1 : 0.7 }}
+                  value={editing ? draft.email : data.email}
+                  onChange={(e) => editing && setDraft((p) => ({ ...p, email: e.target.value }))}
+                  disabled={!editing}
+                />
+              </div>
+              <div>
+                <label style={{ ...s.label, display: 'block', marginBottom: '8px' }}>Phone</label>
+                <input
+                  type="tel"
+                  style={{ ...s.input, opacity: editing ? 1 : 0.7 }}
+                  value={editing ? draft.phone : data.phone}
+                  onChange={(e) => editing && setDraft((p) => ({ ...p, phone: e.target.value }))}
+                  disabled={!editing}
+                  placeholder="(555) 123-4567"
+                />
+              </div>
+              <div>
+                <label style={{ ...s.label, display: 'block', marginBottom: '8px' }}>Location</label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    style={{ ...s.input, opacity: editing ? 1 : 0.7 }}
+                    value={editing ? draft.location : data.location}
+                    onChange={(e) => editing && setDraft((p) => ({ ...p, location: e.target.value }))}
+                    disabled={!editing}
+                    placeholder="City, State"
+                  />
+                  {editing && (
+                    <button
+                      type="button"
+                      style={s.btnSecondary}
+                      onClick={useMyLocation}
+                      disabled={busy}
+                    >
+                      📍
+                    </button>
+                  )}
+                </div>
+                {geoErr && <div style={s.note}>{geoErr}</div>}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Personal Information */}
+        <div style={cardStyles.card}>
+          <div style={cardStyles.cardHeader}>
+            <h2 style={cardStyles.cardTitle}>Personal Information</h2>
+            <p style={cardStyles.cardDescription}>Additional details about yourself</p>
+          </div>
+          <div style={cardStyles.cardContent}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+              <div>
+                <label style={{ ...s.label, display: 'block', marginBottom: '8px' }}>Pronouns</label>
+                <input
+                  style={{ ...s.input, opacity: editing ? 1 : 0.7 }}
+                  value={editing ? draft.pronouns : data.pronouns}
+                  onChange={(e) => editing && setDraft((p) => ({ ...p, pronouns: e.target.value }))}
+                  disabled={!editing}
+                  placeholder="they/them, she/her, he/him"
+                />
+              </div>
+              <div>
+                <label style={{ ...s.label, display: 'block', marginBottom: '8px' }}>Role</label>
+                <select
+                  style={{ ...s.input, opacity: editing ? 1 : 0.7 }}
+                  value={editing ? draft.role : data.role}
+                  onChange={(e) => editing && setDraft((p) => ({ ...p, role: e.target.value }))}
+                  disabled={!editing}
+                >
+                  <option value="family">Family Member</option>
+                  <option value="athlete">Athlete</option>
+                </select>
+              </div>
+              {(data.role === "athlete" || draft.role === "athlete") && (
+                <>
+                  <div>
+                    <label style={{ ...s.label, display: 'block', marginBottom: '8px' }}>Sport</label>
+                    <input
+                      style={{ ...s.input, opacity: editing ? 1 : 0.7 }}
+                      value={editing ? draft.sport : data.sport}
+                      onChange={(e) => editing && setDraft((p) => ({ ...p, sport: e.target.value }))}
+                      disabled={!editing}
+                      placeholder="Basketball, Football, etc."
+                    />
+                  </div>
+                  <div>
+                    <label style={{ ...s.label, display: 'block', marginBottom: '8px' }}>Graduation Year</label>
+                    <input
+                      type="number"
+                      style={{ ...s.input, opacity: editing ? 1 : 0.7 }}
+                      value={editing ? draft.graduationYear : data.graduationYear}
+                      onChange={(e) => editing && setDraft((p) => ({ ...p, graduationYear: e.target.value }))}
+                      disabled={!editing}
+                      placeholder="2025"
+                      min="2020"
+                      max="2030"
+                    />
+                  </div>
+                </>
+              )}
+              {(data.role === "family" || draft.role === "family") && data.children && Object.keys(data.children).length > 0 && (
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ ...s.label, display: 'block', marginBottom: '8px' }}>Children Information</label>
+                  <div style={{
+                    padding: '12px',
+                    backgroundColor: '#f9fafb',
+                    borderRadius: '8px',
+                    border: '1px solid #e5e7eb'
+                  }}>
+                    <pre style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>
+                      {JSON.stringify(data.children, null, 2)}
+                    </pre>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
