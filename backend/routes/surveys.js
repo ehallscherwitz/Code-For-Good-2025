@@ -63,6 +63,7 @@ router.post('/athlete', async (req, res) => {
       athleteName,
       athleteEmail,
       athletePhone,
+      athleteSchool,
       athleteLocation,
       athleteSport,
       athleteGraduationDate
@@ -75,8 +76,10 @@ router.post('/athlete', async (req, res) => {
         athlete_name: athleteName,
         athlete_email: athleteEmail,
         phone_number: '+1' + athletePhone.replace(/\D/g, ''), // Clean and format phone
+        athlete_school: athleteSchool,
         athlete_address: athleteLocation,
-        graduation_year: new Date(athleteGraduationDate).getFullYear()
+        graduation_year: new Date(athleteGraduationDate).getFullYear(),
+        sport: athleteSport
       }])
       .select();
 
@@ -109,22 +112,34 @@ router.post('/coach', async (req, res) => {
       coachName,
       coachEmail,
       coachPhone,
-      coachSchool
+      coachSchool,
+      coachLocation
     } = req.body;
 
-    // For now, we'll just log coach data since there's no coaches table
-    // In the future, you might want to create a COACHES table
-    
-    console.log('Coach survey data:', {
-      name: coachName,
-      email: coachEmail,
-      phone: coachPhone,
-      school: coachSchool
-    });
+    // Create coach record in database
+    const { data: coach, error: coachError } = await req.supabase
+      .from('coach')
+      .insert([{
+        coach_name: coachName,
+        coach_email: coachEmail,
+        coach_phone: '+1' + coachPhone.replace(/\D/g, ''), // Clean and format phone
+        school_name: coachSchool,
+        coach_location: coachLocation
+      }])
+      .select();
+
+    if (coachError) {
+      console.error('Coach creation error:', coachError);
+      return res.status(500).json({ 
+        error: 'Failed to create coach', 
+        details: coachError.message 
+      });
+    }
 
     res.json({
       message: 'Coach survey submitted successfully',
-      note: 'Coach information logged. Contact administrative team for account setup.'
+      coach_id: coach[0].coach_id,
+      data: coach[0]
     });
 
   } catch (error) {
@@ -149,22 +164,24 @@ router.get('/all', async (req, res) => {
       .from('athlete')
       .select('*');
 
-    // For coaches, we don't have a table yet, so return empty array
-    const coachData = { data: [], error: null };
+    // Get coach data
+    const { data: coachData, error: coachError } = await req.supabase
+      .from('coach')
+      .select('*');
 
-    if (familyData.error || athleteData.error || coachData.error) {
+    if (familyError || athleteError || coachError) {
       return res.status(500).json({
         error: 'Failed to retrieve survey data',
-        message: familyData.error?.message || athleteData.error?.message || coachData.error?.message
+        message: familyError?.message || athleteError?.message || coachError?.message
       });
     }
 
     res.json({
       message: 'Survey data retrieved successfully',
       data: {
-        families: familyData.data,
-        athletes: athleteData.data,
-        coaches: coachData.data
+        families: familyData,
+        athletes: athleteData,
+        coaches: coachData
       }
     });
 

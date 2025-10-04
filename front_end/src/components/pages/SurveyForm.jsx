@@ -34,6 +34,7 @@ const SurveyForm = () => {
         athleteName: raw.athleteName,
         athleteEmail: raw.athleteEmail,
         athletePhone: normalizePhone(raw.athletePhone),
+        athleteSchool: raw.athleteSchool,
         athleteLocation: raw.athleteLocation,
         athleteSport: raw.athleteSport,
         athleteGraduationDate: raw.athleteGraduationDate,
@@ -45,7 +46,8 @@ const SurveyForm = () => {
         coachName: raw.coachName,
         coachEmail: raw.coachEmail,
         coachPhone: normalizePhone(raw.coachPhone),
-        coachSchool: raw.coachSchool
+        coachSchool: raw.coachSchool,
+        coachLocation: raw.coachLocation
       };
     }
     return raw;
@@ -178,6 +180,11 @@ const SurveyForm = () => {
       </div>
 
       <div style={{ marginBottom: '20px' }}>
+        <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.95)', fontSize: '1rem' }}>School Name *</label>
+        <input type="text" name="athleteSchool" placeholder="University of Example" style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', color: '#333', fontSize: '1rem' }} />
+      </div>
+
+      <div style={{ marginBottom: '20px' }}>
         <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.95)', fontSize: '1rem' }}>Location *</label>
         <input type="text" name="athleteLocation" placeholder="City, State" style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', color: '#333', fontSize: '1rem' }} />
       </div>
@@ -216,6 +223,11 @@ const SurveyForm = () => {
       <div style={{ marginBottom: '20px' }}>
         <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.95)', fontSize: '1rem' }}>School Name *</label>
         <input type="text" name="coachSchool" placeholder="University of Example" style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', color: '#333', fontSize: '1rem' }} />
+      </div>
+
+      <div style={{ marginBottom: '20px' }}>
+        <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.95)', fontSize: '1rem' }}>Location *</label>
+        <input type="text" name="coachLocation" placeholder="City, State" style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', color: '#333', fontSize: '1rem' }} />
       </div>
     </div>
   );

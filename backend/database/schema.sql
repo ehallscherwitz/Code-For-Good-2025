@@ -1,11 +1,18 @@
 CREATE TABLE SCHOOL (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT,
+    name TEXT NOT NULL,
     city TEXT,
-    location JSONB NOT NULL DEFAULT '{}'::jsonb,
-    name TEXT NOT NULL
-   
+    location JSONB NOT NULL DEFAULT '{}'::jsonb
+);
 
+CREATE TABLE COACH (
+    coach_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    coach_name TEXT NOT NULL,
+    coach_email TEXT NOT NULL,
+    coach_phone TEXT NOT NULL,
+    school_name TEXT NOT NULL,
+    coach_location TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE TEAM (
@@ -31,12 +38,14 @@ CREATE TABLE ATHLETE (
 
 CREATE TABLE FAMILY (
     parent_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    parent_name TEXT,
-    parent_email TEXT,
-    parent_phone_number TEXT,
+    parent_name TEXT NOT NULL,
+    parent_email TEXT NOT NULL,
+    parent_phone_number TEXT NOT NULL,
     location JSONB NOT NULL DEFAULT '{}'::jsonb,
     children JSONB NOT NULL DEFAULT '{}'::jsonb,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    team_id UUID REFERENCES TEAM(team_id) ON DELETE CASCADE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE ALUMNI (
@@ -46,17 +55,6 @@ CREATE TABLE ALUMNI (
     alumni_phone_number TEXT NOT NULL,
     location JSONB NOT NULL DEFAULT '{}'::jsonb, 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE FAMILY (
-    parent_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    parent_name TEXT NOT NULL,
-    parent_email TEXT NOT NULL,
-    parent_phone_number TEXT NOT NULL,
-    location JSONB NOT NULL DEFAULT '{}'::jsonb,
-    children JSONB NOT NULL DEFAULT '{}'::jsonb,
-    team_id UUID REFERENCES TEAM(team_id) ON DELETE CASCADE,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE EVENT (
@@ -71,8 +69,7 @@ CREATE TABLE EVENT (
     team_id UUID REFERENCES TEAM(team_id) ON DELETE CASCADE,
     event_status TEXT NOT NULL,
     event_created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    event_updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    team_id UUID REFERENCES TEAM(team_id) ON DELETE CASCADE
+    event_updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 
