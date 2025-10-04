@@ -7,7 +7,7 @@ import React, { useEffect, useMemo, useState } from "react";
  * - Edit / Save / Cancel
  */
 
-const STORAGE_KEY = "ti_profile_v1";
+const STORAGE_INFO = "ti_profile_v1";
 
 const DEFAULT_PROFILE = {
   role: "family",
@@ -42,7 +42,7 @@ export default function Profile() {
   // load from localStorage
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(STORAGE_INFO);
       if (raw) {
         const parsed = JSON.parse(raw);
         setData({ ...DEFAULT_PROFILE, ...parsed });
@@ -75,7 +75,7 @@ export default function Profile() {
     setTimeout(() => {
       setData(draft);
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+        localStorage.setItem(STORAGE_INFO, JSON.stringify(draft));
       } catch (_) {}
       setBusy(false);
       setEditing(false);
