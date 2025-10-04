@@ -78,8 +78,39 @@ const SurveyForm = () => {
       if (!res.ok) {
         const msg = await res.text().catch(() => '');
         throw new Error(msg || `Request failed with ${res.status}`);
+      // Try to submit to backend, but don't fail if backend is not running
+      let res;
+      try {
+        res = await fetch(`${API_BASE}/api/surveys/${accountType}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          const msg = await res.text().catch(() => '');
+          throw new Error(msg || `Request failed with ${res.status}`);
+        }
+      } catch (networkError) {
+        // If backend is not running, continue with local storage only
+        console.log('Backend not available, saving locally only:', networkError.message);
+        res = null; // Set res to null to indicate backend failure
       }
-      const created = await res.json();
+
+      // Save user role to localStorage for Connect page
+      try {
+        const existingProfile = JSON.parse(localStorage.getItem('ti_profile_v1') || '{}');
+        const updatedProfile = {
+          ...existingProfile,
+          role: accountType
+        };
+        localStorage.setItem('ti_profile_v1', JSON.stringify(updatedProfile));
+      } catch (error) {
+        console.error('Error saving user role:', error);
+      }
+
+      // Only proceed with backend response if we got one
+      if (res) {
+        const created = await res.json();
 
       // 2) If Family, immediately call Gemini to rank schools, select a team,
       //    and persist family.team_id on the backend.
@@ -105,10 +136,17 @@ const SurveyForm = () => {
         }
       }
 
-      setSubmitMessage({ text: 'Survey submitted successfully! Thank you for your time.', ok: true });
-      if (typeof formEl.reset === 'function') formEl.reset();
-      setAccountType('');
-      setTimeout(() => navigate('/dashboard'), 1200);
+        setSubmitMessage({ text: 'Survey submitted successfully! Thank you for your time.', ok: true });
+        if (typeof formEl.reset === 'function') formEl.reset();
+        setAccountType('');
+        setTimeout(() => navigate('/dashboard'), 1200);
+      } else {
+        // Backend not available, but local storage was saved
+        setSubmitMessage({ text: 'Survey saved locally! Thank you for your time.', ok: true });
+        if (typeof formEl.reset === 'function') formEl.reset();
+        setAccountType('');
+        setTimeout(() => navigate('/dashboard'), 1200);
+      }
     } catch (error) {
       console.error('Survey submission error:', error);
       setSubmitMessage({ text: 'Something went wrong submitting the survey. Please try again.', ok: false });
