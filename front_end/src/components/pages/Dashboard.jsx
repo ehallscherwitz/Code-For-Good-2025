@@ -8,12 +8,25 @@ const Dashboard = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   
   const carouselImages = [
     dashboardCarousel1,
     dashboardCarousel2,
     dashboardCarousel3
   ];
+
+  // Handle window resize for responsive design
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const isMobile = windowWidth <= 768;
 
   // Auto-rotate images every 5 seconds
   useEffect(() => {
@@ -95,24 +108,26 @@ const Dashboard = () => {
       }}>
         <div style={{
           display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
           minHeight: 'calc(100vh - 60px)', // Adjust based on navbar height
           gap: '20px',
-          padding: '20px',
+          padding: isMobile ? '10px' : '20px',
           maxWidth: '1400px',
           margin: '0 auto'
         }}>
           {/* Left Content Area */}
           <div style={{
-            flex: '2',
+            flex: isMobile ? 'none' : '2',
             display: 'flex',
             flexDirection: 'column',
             gap: '20px',
-            textAlign: 'center'
+            textAlign: 'center',
+            width: isMobile ? '100%' : 'auto'
           }}>
             {/* Welcome Section */}
             <div style={{textAlign: 'center'}}>
               <h1 style={{
-                fontSize: '48px',
+                fontSize: isMobile ? '32px' : '48px',
                 fontWeight: 'bold',
                 color: '#000000',
                 margin: '0 0 16px 0',
@@ -121,12 +136,13 @@ const Dashboard = () => {
                 Welcome Back
               </h1>
               <p style={{
-                fontSize: '18px',
+                fontSize: isMobile ? '16px' : '18px',
                 color: '#000000',
                 margin: '0 0 24px 0',
                 lineHeight: '1.5',
                 width: '100%',
-                textAlign: 'center'
+                textAlign: 'center',
+                padding: isMobile ? '0 10px' : '0'
               }}>
                 Connecting young athletes with college mentors to inspire, empower, and build lasting friendships.
               </p>
@@ -136,7 +152,7 @@ const Dashboard = () => {
             <div style={{
               position: 'relative',
               width: '100%',
-              height: '500px',
+              height: isMobile ? '300px' : '500px',
               borderRadius: '12px',
               overflow: 'hidden',
               boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
@@ -187,20 +203,21 @@ const Dashboard = () => {
 
           {/* Right Sidebar - Upcoming Events */}
           <div style={{
-            flex: '1',
-            maxWidth: '400px'
+            flex: isMobile ? 'none' : '1',
+            maxWidth: isMobile ? '100%' : '400px',
+            width: isMobile ? '100%' : 'auto'
           }}>
             <div style={{
               backgroundColor: '#f8f9fa',
               borderRadius: '12px',
-              padding: '24px',
+              padding: isMobile ? '16px' : '24px',
               height: 'fit-content'
             }}>
               <h2 style={{
-                fontSize: '24px',
+                fontSize: isMobile ? '20px' : '24px',
                 fontWeight: 'bold',
                 color: '#000000',
-                margin: '0 0 20px 0'
+                margin: isMobile ? '0 0 16px 0' : '0 0 20px 0'
               }}>
                 Upcoming Events
               </h2>
