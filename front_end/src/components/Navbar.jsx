@@ -262,6 +262,7 @@ export default function Navbar() {
               Create an event
             </button>
             <button
+              onClick={() => navigate('/connect')}
               style={{
                 background: 'transparent',
                 border: 'none',
