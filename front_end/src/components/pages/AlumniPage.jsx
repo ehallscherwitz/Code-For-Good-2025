@@ -139,8 +139,8 @@ const AlumniPage = () => {
     <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow relative">
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-            <GraduationCap className="w-6 h-6 text-purple-600" />
+          <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+            <GraduationCap className="w-6 h-6 text-[var(--secondary)]" />
           </div>
           <div>
             <h3 className="text-lg font-semibold text-gray-900">{member.alumni_name}</h3>
@@ -150,7 +150,7 @@ const AlumniPage = () => {
         <div className="flex gap-2">
           <button
             onClick={() => setSelectedAlumni(member)}
-            className="px-3 py-1 bg-purple-100 text-purple-700 rounded-md text-sm hover:bg-purple-200"
+              className="px-3 py-1 bg-blue-100 text-[var(--secondary-800)] rounded-md text-sm hover:bg-blue-200"
           >
             View
           </button>
@@ -316,7 +316,7 @@ const AlumniPage = () => {
                   required
                   value={formData.alumni_name}
                   onChange={(e) => setFormData({...formData, alumni_name: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
                 />
               </div>
 
@@ -357,7 +357,7 @@ const AlumniPage = () => {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50"
+                  className="flex-1 px-4 py-2 bg-[var(--secondary)] text-white rounded-md hover:bg-[var(--secondary-800)] disabled:opacity-50"
                 >
                   {submitting ? 'Adding...' : 'Add Alumni'}
                 </button>
@@ -400,6 +400,19 @@ const AlumniPage = () => {
         {/* Header */}
         <div className="bg-white shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-3xl font-bold text-gray-900">Alumni Management</h1>
+              <button
+                onClick={() => setShowAddForm(true)}
+                className="flex items-center gap-2 bg-[var(--secondary)] text-white px-4 py-2 rounded-md hover:bg-[var(--secondary-800)]"
+              >
+                <Plus className="w-4 h-4" />
+                Add Alumni
+              </button>
+            </div>
+            <p className="text-gray-600 mb-6">
+              Manage alumni profiles and graduation status
+            </p>
             
             {/* Graduation Promotion Section */}
             {graduatedAthletes.length > 0 && (
@@ -447,7 +460,7 @@ const AlumniPage = () => {
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600 mx-auto mb-4"></div>
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[var(--secondary)] mx-auto mb-4"></div>
                 <p className="text-gray-600">Loading alumni...</p>
               </div>
             </div>
@@ -480,7 +493,7 @@ const AlumniPage = () => {
               {searchTerm && (
                 <button 
                   onClick={() => setSearchTerm('')}
-                  className="text-purple-600 hover:text-purple-700 underline"
+                  className="text-[var(--secondary)] hover:text-[var(--secondary-800)] underline"
                 >
                   Clear search
                 </button>

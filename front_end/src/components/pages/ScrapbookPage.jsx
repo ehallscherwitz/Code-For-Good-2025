@@ -116,7 +116,7 @@ const ScrapbookPage = () => {
     };
 
     const rotations = ['rotate-1', '-rotate-1', 'rotate-2', '-rotate-2', 'rotate-3'];
-    const colors = ['bg-pink-100', 'bg-blue-100', 'bg-green-100', 'bg-yellow-100', 'bg-purple-100'];
+    const colors = ['bg-blue-50', 'bg-slate-50', 'bg-blue-100', 'bg-red-50', 'bg-slate-100'];
     const rotation = rotations[index % rotations.length];
     const color = colors[index % colors.length];
 
@@ -151,24 +151,24 @@ const ScrapbookPage = () => {
         <div className="absolute -top-2 -left-2 bg-yellow-200 rounded-full p-2">
           <Trophy className="w-4 h-4 text-yellow-600" />
         </div>
-        <div className="absolute -bottom-2 -right-2 bg-pink-200 rounded-full p-2">
-          <Sparkles className="w-4 h-4 text-pink-600" />
+        <div className="absolute -bottom-2 -right-2 bg-blue-100 rounded-full p-2">
+          <Sparkles className="w-4 h-4 text-[var(--secondary)]" />
         </div>
       </div>
     );
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-blue-50 to-green-50">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-100">
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-sm shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <div className="flex items-center justify-center mb-4">
-              <div className="bg-gradient-to-r from-pink-400 to-blue-400 rounded-full p-3 mr-4">
+              <div className="bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] rounded-full p-3 mr-4">
                 <Camera className="w-8 h-8 text-white" />
               </div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-600 to-blue-600 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-extrabold bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)] bg-clip-text text-transparent">
                 Team IMPACT Scrapbook
               </h1>
             </div>
@@ -182,10 +182,10 @@ const ScrapbookPage = () => {
 
       {/* Upload Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/50 mb-8">
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-slate-100 mb-8">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center justify-center">
-              <Plus className="w-6 h-6 mr-2 text-green-500" />
+              <Plus className="w-6 h-6 mr-2 text-[var(--secondary)]" />
               Share a Memory
             </h2>
             <p className="text-gray-600 mb-6">
@@ -205,8 +205,8 @@ const ScrapbookPage = () => {
                 htmlFor="image-upload"
                 className={`inline-flex items-center px-8 py-4 rounded-full text-white font-semibold shadow-lg transition-all duration-300 ${
                   uploading
-                    ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-pink-500 to-blue-500 hover:from-pink-600 hover:to-blue-600 hover:shadow-xl hover:scale-105'
+                    ? 'bg-slate-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-[var(--secondary)] to-[var(--secondary-800)] hover:from-[var(--secondary)] hover:to-[var(--secondary-800)] hover:shadow-xl hover:scale-105'
                 }`}
               >
                 {uploading ? (
@@ -239,7 +239,7 @@ const ScrapbookPage = () => {
         <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/50">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-800 mb-2 flex items-center justify-center">
-              <ImageIcon className="w-8 h-8 mr-3 text-purple-500" />
+              <ImageIcon className="w-8 h-8 mr-3 text-[var(--secondary)]" />
               Our Shared Memories
             </h2>
             <p className="text-gray-600">
@@ -250,7 +250,7 @@ const ScrapbookPage = () => {
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
-                <RefreshCw className="w-12 h-12 text-pink-400 animate-spin mx-auto mb-4" />
+                <RefreshCw className="w-12 h-12 text-[var(--secondary)] animate-spin mx-auto mb-4" />
                 <p className="text-gray-600">Loading precious memories...</p>
               </div>
             </div>
@@ -271,7 +271,7 @@ const ScrapbookPage = () => {
               </p>
               <button
                 onClick={() => document.getElementById('image-upload').click()}
-                className="bg-gradient-to-r from-pink-500 to-blue-500 text-white px-6 py-3 rounded-full font-semibold hover:from-pink-600 hover:to-blue-600 transition-all duration-300"
+                className="bg-gradient-to-r from-[var(--secondary)] to-[var(--secondary-800)] text-white px-6 py-3 rounded-full font-semibold transition-all duration-300 hover:shadow-xl"
               >
                 <Upload className="w-5 h-5 mr-2 inline" />
                 Upload First Photo
@@ -299,13 +299,13 @@ const ScrapbookPage = () => {
         <Trophy className="w-16 h-16 text-yellow-400" />
       </div>
       <div className="fixed top-40 right-20 opacity-20">
-        <Star className="w-12 h-12 text-pink-400 fill-current" />
+        <Star className="w-12 h-12 text-[var(--secondary)] fill-current" />
       </div>
       <div className="fixed bottom-20 left-20 opacity-20">
         <Heart className="w-14 h-14 text-red-400" />
       </div>
       <div className="fixed bottom-40 right-10 opacity-20">
-        <Sparkles className="w-10 h-10 text-purple-400" />
+        <Sparkles className="w-10 h-10 text-[var(--secondary)]" />
       </div>
     </div>
   );
