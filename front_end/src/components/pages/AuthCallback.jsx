@@ -20,8 +20,8 @@ const AuthCallback = () => {
         }
 
         if (data.session) {
-          // User is authenticated, redirect to home page
-          navigate('/');
+          // User is authenticated, redirect to dashboard
+          navigate('/dashboard');
         } else {
           // No session found, redirect to login
           navigate('/login');

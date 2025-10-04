@@ -50,12 +50,17 @@ const LoginPage = () => {
 
     try {
       if (isSignUp) {
-        // Signup logic - for demo purposes, we'll redirect to survey
-        alert("Registration successful! Please complete your profile.");
-        navigate("/survey");
+        // Signup logic - redirect new users to survey form
+        setSuccessMessage("Registration successful! Please complete your profile.");
+        setTimeout(() => {
+          navigate("/survey");
+        }, 1500);
       } else {
         // Login logic - navigate to dashboard after successful login
-        navigate("/dashboard");
+        setSuccessMessage("Login successful! Redirecting...");
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 1000);
       }
     } catch (err) {
       setError("Login failed. Please try again.");
@@ -73,7 +78,7 @@ const LoginPage = () => {
       // Show success message and add 1 second delay before redirecting
       setSuccessMessage('Sign-in successful! Redirecting...');
       setTimeout(() => {
-        navigate("/");
+        navigate("/dashboard");
       }, 1000);
     } catch (error) {
       console.error('Sign-in failed:', error);
