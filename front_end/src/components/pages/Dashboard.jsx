@@ -348,12 +348,12 @@ const Dashboard = () => {
               </h2>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {loading ? (
+                {eventsLoading ? (
                   <div style={{ textAlign: 'center', padding: '20px', color: '#6c757d' }}>
                     <div style={{ marginBottom: '10px' }}>Loading events...</div>
                     <div style={{ fontSize: '12px' }}>Fetching upcoming events...</div>
                   </div>
-                ) : error ? (
+                ) : eventsError ? (
                   <div style={{ 
                     backgroundColor: '#ffe6e6', 
                     border: '1px solid #ffcccc', 
@@ -362,7 +362,7 @@ const Dashboard = () => {
                     borderRadius: '8px',
                     fontSize: '14px'
                   }}>
-                    Error loading events: {error}
+                    Error loading events: {eventsError}
                   </div>
                 ) : upcomingEvents.length > 0 ? (
                   upcomingEvents.map((event, index) => (
