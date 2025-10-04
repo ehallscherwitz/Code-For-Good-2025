@@ -32,6 +32,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // API Routes - Add your custom routes here
+app.use('/api/auth', require('./routes/auth'));
 // app.use('/api/your-route', require('./routes/your-route'));
 
 // Supabase test endpoint
