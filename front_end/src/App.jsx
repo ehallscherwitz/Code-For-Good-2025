@@ -4,7 +4,7 @@ import MainPage from './components/MainPage';
 import LoginPage from './components/pages/LoginPage';
 import Profile from './components/pages/Profile';
 import SurveyForm from './components/pages/SurveyForm';
-import Dashboard from './components/pages/Dashboard';
+import Dashboard from './components/pages/Dashboard'; //is the '.jsx' needed?
 import './App.css';
 
 function App() {
