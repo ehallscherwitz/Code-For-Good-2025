@@ -15,6 +15,7 @@ import FamiliesPage from './components/pages/FamiliesPage';
 import AlumniPage from './components/pages/AlumniPage';
 import EventsPage from './components/pages/EventsPage';
 import ConnectPage from './components/pages/ConnectPage';
+import ScrapbookPage from './components/pages/ScrapbookPage';
 
 function App() {
   return (
@@ -85,6 +86,11 @@ function App() {
             <Route path="/connect" element={
               <Layout>
                 <ConnectPage />
+              </Layout>
+            } />
+            <Route path="/scrapbook" element={
+              <Layout>
+                <ScrapbookPage />
               </Layout>
             } />
           </Routes>
