@@ -1,8 +1,7 @@
 CREATE TABLE SCHOOL (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     location JSONB NOT NULL DEFAULT '{}'::jsonb,
-    city TEXT NOT NULL
-    location JSONB NOT NULL DEFAULT '{}'::jsonb,
+   
 
 );
 

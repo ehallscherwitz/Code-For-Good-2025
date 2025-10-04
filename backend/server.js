@@ -54,18 +54,12 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-<<<<<<< HEAD
-// API Routes - Add your custom routes here
-app.use('/api/auth', require('./routes/auth'));
-// app.use('/api/your-route', require('./routes/your-route'));
-=======
 // Register routes
 app.use('/api/schools', schoolsRouter);
 app.use('/api/teams', teamsRouter);
 app.use('/api/athletes', athletesRouter);
 app.use('/api/alumni', alumniRouter);
 app.use('/api/families', familiesRouter);
->>>>>>> routes
 
 // Supabase test endpoint
 app.get('/api/test-supabase', async (req, res) => {
