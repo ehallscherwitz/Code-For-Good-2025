@@ -2,6 +2,7 @@
 "use client";
 import { useState } from "react";
 import { Calendar, Users, User, Bell } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const eventsItems = [
   { label: "All Events", href: "#", badge: "24" },
@@ -9,7 +10,7 @@ const eventsItems = [
   { label: "Past Events", href: "#" },
   { label: "Drafts", href: "#", badge: "3" },
   { label: "Archived", href: "#" },
-  { label: "Create New Event", href: "#", highlight: true },
+  { label: "Create New Event", to: "/create-event", highlight: true },
 ];
 
 const connectItems = [
@@ -31,157 +32,111 @@ const profileItems = [
 ];
 
 // Enhanced NavDropdown component with animations
-const NavDropdown = ({ label, icon: Icon, items, isOpen, onToggle }) => (
-  <div style={{ position: 'relative' }}>
-    <button
-      onClick={onToggle}
-      style={{
-        background: isOpen ? '#27272A' : 'transparent',
-        border: 'none',
-        color: isOpen ? '#E4E4E7' : '#A1A1AA',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.5rem',
-        padding: '0.5rem 1rem',
-        cursor: 'pointer',
-        borderRadius: '6px',
-        fontSize: '0.875rem',
-        transition: 'all 0.2s ease-in-out',
-        ':hover': {
-          color: '#E4E4E7',
-          backgroundColor: '#27272A'
-        }
-      }}
-      onMouseEnter={(e) => {
-        if (!isOpen) {
-          e.target.style.color = '#E4E4E7';
-          e.target.style.backgroundColor = '#27272A';
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (!isOpen) {
-          e.target.style.color = '#A1A1AA';
-          e.target.style.backgroundColor = 'transparent';
-        }
-      }}
-    >
-      <Icon size={16} />
-      {label}
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+const NavDropdown = ({ label, icon: Icon, items, isOpen, onToggle }) => {
+  const navigate = useNavigate(); // ✅ inside a block body
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <button
+        onClick={onToggle}
         style={{
-          transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-          transition: 'transform 0.2s ease-in-out'
+          background: isOpen ? '#27272A' : 'transparent',
+          border: 'none',
+          color: isOpen ? '#E4E4E7' : '#A1A1AA',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          padding: '0.5rem 1rem',
+          cursor: 'pointer',
+          borderRadius: '6px',
+          fontSize: '0.875rem',
+          transition: 'all 0.2s ease-in-out',
+        }}
+        onMouseEnter={(e) => {
+          if (!isOpen) {
+            e.currentTarget.style.color = '#E4E4E7';
+            e.currentTarget.style.backgroundColor = '#27272A';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!isOpen) {
+            e.currentTarget.style.color = '#A1A1AA';
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }
         }}
       >
-        <polyline points="6,9 12,15 18,9"></polyline>
-      </svg>
-    </button>
-    
-    {isOpen && (
-      <>
-        {/* Backdrop */}
-        <div 
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 40
-          }}
-          onClick={onToggle}
-        />
-        
-        {/* Dropdown */}
-        <div style={{
-          position: 'absolute',
-          top: 'calc(100% + 8px)',
-          left: 0,
-          width: '256px',
-          zIndex: 50,
-          animation: 'dropdownSlideIn 0.2s ease-out',
-          transformOrigin: 'top'
-        }}>
-          <div style={{
-            borderRadius: '8px',
-            border: '1px solid #3F3F46',
-            backgroundColor: '#18181B',
-            boxShadow: '0 10px 38px -10px rgba(0, 0, 0, 0.35), 0 10px 20px -15px rgba(0, 0, 0, 0.2)',
-            overflow: 'hidden'
-          }}>
-            <div style={{
-              maxHeight: '400px',
-              overflowY: 'auto',
-              padding: '8px'
-            }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                {items.map((item, index) => (
-                  <a
-                    key={index}
-                    href={item.href}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '8px 12px',
-                      borderRadius: '6px',
-                      color: item.highlight ? '#60A5FA' : '#E4E4E7',
-                      textDecoration: 'none',
-                      fontSize: '0.875rem',
-                      fontWeight: item.highlight ? '500' : '400',
-                      transition: 'background-color 0.2s ease-in-out',
-                      ':hover': {
-                        backgroundColor: item.highlight ? 'rgba(96, 165, 250, 0.1)' : '#27272A'
-                      }
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = item.highlight ? 'rgba(96, 165, 250, 0.1)' : '#27272A';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.style.backgroundColor = 'transparent';
-                    }}
-                  >
-                    <span>{item.label}</span>
-                    {item.badge && (
-                      <span style={{
-                        padding: '2px 8px',
-                        fontSize: '0.75rem',
-                        borderRadius: '9999px',
-                        backgroundColor: 'rgba(96, 165, 250, 0.2)',
-                        color: '#60A5FA',
-                        fontWeight: '500'
-                      }}>
-                        {item.badge}
-                      </span>
-                    )}
-                  </a>
-                ))}
+        <Icon size={16} />
+        {label}
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+             style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform .2s' }}>
+          <polyline points="6,9 12,15 18,9"></polyline>
+        </svg>
+      </button>
+
+      {isOpen && (
+        <>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 40 }} onClick={onToggle} />
+          <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, width: '256px', zIndex: 50 }}>
+            <div style={{ borderRadius: '8px', border: '1px solid #3F3F46', backgroundColor: '#18181B', overflow: 'hidden' }}>
+              <div style={{ maxHeight: '400px', overflowY: 'auto', padding: '8px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  {items.map((item, index) => (
+                    <a
+                      key={index}
+                      href={item.href || item.to || '#'}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '8px 12px',
+                        borderRadius: '6px',
+                        color: item.highlight ? '#60A5FA' : '#E4E4E7',
+                        textDecoration: 'none',
+                        fontSize: '0.875rem',
+                        fontWeight: item.highlight ? '500' : '400',
+                      }}
+                      onClick={(e) => {
+                        if (item.to) {
+                          e.preventDefault();
+                          onToggle?.();
+                          navigate(item.to);   // ✅ go to /create-event
+                        }
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = item.highlight ? 'rgba(96,165,250,.1)' : '#27272A'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+                    >
+                      <span>{item.label}</span>
+                      {item.badge && (
+                        <span style={{
+                          padding: '2px 8px',
+                          fontSize: '0.75rem',
+                          borderRadius: '9999px',
+                          backgroundColor: 'rgba(96,165,250,.2)',
+                          color: '#60A5FA',
+                          fontWeight: '500'
+                        }}>
+                          {item.badge}
+                        </span>
+                      )}
+                    </a>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </>
-    )}
-    
-    <style jsx>{`
-      @keyframes dropdownSlideIn {
-        from {
-          opacity: 0;
-          transform: translateY(-8px) scale(0.95);
+        </>
+      )}
+
+      <style jsx>{`
+        @keyframes dropdownSlideIn {
+          from { opacity: 0; transform: translateY(-8px) scale(0.95); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
         }
-        to {
-          opacity: 1;
-          transform: translateY(0) scale(1);
-        }
-      }
-    `}</style>
-  </div>
-);
+      `}</style>
+    </div>
+  );
+};
 
 export default function Navbar() {
   const [activeDropdown, setActiveDropdown] = useState(null);
