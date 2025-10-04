@@ -15,10 +15,10 @@ const DEFAULT_PROFILE = {
   role: "family",
   name: "User",
   pronouns: "",
-  bio: "Welcome to Team IMPACT! Tell us about yourself...",
-  location: "",
+  bio: "Welcome to Team IMPACT! Tell us about yourself and what you're looking for in the community.",
+  location: "Add your location",
   email: "",
-  phone: "",
+  phone: "Add phone number",
   avatarUrl: null,
   graduationYear: "",
   sport: "",
@@ -57,170 +57,163 @@ export default function Profile() {
     if (!user) return;
 
     const fetchUserProfile = async () => {
-    try {
-      // First try to get Google profile data as fallback
-      const googleProfile = {
-        name: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || "User",
-        email: user.email || "",
-        avatarUrl: user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
-      };
-
-      // Try to fetch from backend first using user_id
-      let backendData = null;
-      
-      // Try athlete endpoint first
       try {
-        console.log('Fetching athlete data for user_id:', user.id);
-        const athleteResponse = await fetch(`http://localhost:5000/api/athletes/user/${user.id}`);
-        console.log('Athlete response status:', athleteResponse.status);
+        // First try to get Google profile data as fallback
+        const googleProfile = {
+          name: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || "User",
+          email: user.email || "",
+          avatarUrl: user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
+        };
+
+        // Try to fetch from backend first using user_id
+        let backendData = null;
         
-        if (athleteResponse.ok) {
-          const userAthlete = await athleteResponse.json();
-          console.log('Athlete data found:', userAthlete);
-          console.log('Athlete fields:', {
-            athlete_name: userAthlete?.athlete_name,
-            athlete_email: userAthlete?.athlete_email,
-            phone_number: userAthlete?.phone_number,
-            athlete_address: userAthlete?.athlete_address,
-            graduation_year: userAthlete?.graduation_year,
-            sport: userAthlete?.sport,
-            user_id: userAthlete?.user_id
-          });
-          
-          if (userAthlete) {
-            // Format athlete data nicely
-            const graduationYear = userAthlete.graduation_year;
-            const currentYear = new Date().getFullYear();
-            const yearsToGraduation = graduationYear ? graduationYear - currentYear : null;
-            
-            let bioText = `College athlete passionate about making a difference in the community.`;
-            if (graduationYear) {
-              bioText += ` Graduating in ${graduationYear}${yearsToGraduation > 0 ? ` (${yearsToGraduation} year${yearsToGraduation > 1 ? 's' : ''} remaining)` : ''}.`;
-            }
-            if (userAthlete.sport) {
-              bioText += ` Playing ${userAthlete.sport}.`;
-            }
-            
-            backendData = {
-              role: "athlete",
-              name: userAthlete.athlete_name || googleProfile.name,
-              email: userAthlete.athlete_email || googleProfile.email,
-              phone: userAthlete.phone_number || "",
-              location: userAthlete.athlete_address || "",
-              bio: bioText,
-              avatarUrl: googleProfile.avatarUrl,
-              graduationYear: userAthlete.graduation_year,
-              sport: userAthlete.sport || ""
-            };
-            console.log('Backend data set for athlete:', backendData);
-          }
-        } else {
-          console.log('No athlete data found, status:', athleteResponse.status);
-        }
-      } catch (error) {
-        console.log('Error fetching athlete data:', error);
-      }
-
-      // If not found as athlete, try family endpoint
-      if (!backendData) {
+        // Try athlete endpoint first
         try {
-          console.log('Fetching family data for user_id:', user.id);
-          const familyResponse = await fetch(`http://localhost:5000/api/families/user/${user.id}`);
-          console.log('Family response status:', familyResponse.status);
+          console.log('Fetching athlete data for user_id:', user.id);
+          const athleteResponse = await fetch(`http://localhost:5000/api/athletes/user/${user.id}`);
+          console.log('Athlete response status:', athleteResponse.status);
           
-          if (familyResponse.ok) {
-            const userFamily = await familyResponse.json();
-            console.log('Family data found:', userFamily);
+          if (athleteResponse.ok) {
+            const userAthlete = await athleteResponse.json();
+            console.log('Athlete data found:', userAthlete);
             
-            if (userFamily) {
-              // Format location properly
-              let location = "";
-              if (typeof userFamily.location === 'object') {
-                if (userFamily.location.zip_code) {
-                  location = `ZIP: ${userFamily.location.zip_code}`;
-                } else {
-                  location = `${userFamily.location.city || ''}, ${userFamily.location.state || ''}`.trim().replace(/^,\s*|,\s*$/g, '');
-                }
-              } else if (userFamily.location) {
-                location = userFamily.location;
+            if (userAthlete) {
+              // Format athlete data nicely
+              const graduationYear = userAthlete.graduation_year;
+              const currentYear = new Date().getFullYear();
+              const yearsToGraduation = graduationYear ? graduationYear - currentYear : null;
+              
+              let bioText = `College athlete passionate about making a difference in the community.`;
+              if (graduationYear) {
+                bioText += ` Graduating in ${graduationYear}${yearsToGraduation > 0 ? ` (${yearsToGraduation} year${yearsToGraduation > 1 ? 's' : ''} remaining)` : ''}.`;
               }
-
-              // Format children information nicely for bio
-              let childrenInfo = "";
-              if (userFamily.children && typeof userFamily.children === 'object') {
-                const child = userFamily.children;
-                const currentYear = new Date().getFullYear();
-                const birthYear = child.birth_date ? new Date(child.birth_date).getFullYear() : null;
-                const age = birthYear ? currentYear - birthYear : 'Unknown';
-                
-                childrenInfo = `Proud parent of ${child.name || 'my child'} (${age} years old) who plays ${child.sport || 'sports'}. ${child.medical_conditions ? `Special considerations: ${child.medical_conditions}.` : ''}`;
+              if (userAthlete.sport) {
+                bioText += ` Playing ${userAthlete.sport}.`;
               }
-
+              
               backendData = {
-                role: "family",
-                name: userFamily.parent_name || googleProfile.name,
-                email: userFamily.parent_email || googleProfile.email,
-                phone: userFamily.parent_phone_number || "",
-                location: location,
-                bio: `Family member passionate about supporting young athletes. ${childrenInfo}`,
+                role: "athlete",
+                name: userAthlete.athlete_name || googleProfile.name,
+                email: userAthlete.athlete_email || googleProfile.email,
+                phone: userAthlete.phone_number || "",
+                location: userAthlete.athlete_address || "",
+                bio: bioText,
                 avatarUrl: googleProfile.avatarUrl,
-                children: userFamily.children || {}
+                graduationYear: userAthlete.graduation_year,
+                sport: userAthlete.sport || ""
               };
-              console.log('Backend data set for family:', backendData);
+              console.log('Backend data set for athlete:', backendData);
             }
           } else {
-            console.log('No family data found, status:', familyResponse.status);
+            console.log('No athlete data found, status:', athleteResponse.status);
           }
         } catch (error) {
-          console.log('Error fetching family data:', error);
+          console.log('Error fetching athlete data:', error);
         }
-      }
 
-      console.log('Final backend data:', backendData);
+        // If not found as athlete, try family endpoint
+        if (!backendData) {
+          try {
+            console.log('Fetching family data for user_id:', user.id);
+            const familyResponse = await fetch(`http://localhost:5000/api/families/user/${user.id}`);
+            console.log('Family response status:', familyResponse.status);
+            
+            if (familyResponse.ok) {
+              const userFamily = await familyResponse.json();
+              console.log('Family data found:', userFamily);
+              
+              if (userFamily) {
+                // Format location properly
+                let location = "";
+                if (typeof userFamily.location === 'object') {
+                  if (userFamily.location.zip_code) {
+                    location = `ZIP: ${userFamily.location.zip_code}`;
+                  } else {
+                    location = `${userFamily.location.city || ''}, ${userFamily.location.state || ''}`.trim().replace(/^,\s*|,\s*$/g, '');
+                  }
+                } else if (userFamily.location) {
+                  location = userFamily.location;
+                }
 
-      // Merge with local storage data
-      try {
-        const raw = localStorage.getItem(STORAGE_INFO);
-        const savedData = raw ? JSON.parse(raw) : {};
-        
-        console.log('Local storage data:', savedData);
-        console.log('Backend data:', backendData);
-        console.log('Google profile:', googleProfile);
-        
-        // Priority: backendData > savedData > googleProfile > DEFAULT_PROFILE
-        const mergedData = { 
-          ...DEFAULT_PROFILE, 
-          ...googleProfile, 
-          ...savedData,
-          ...(backendData || {}), // Backend data should override localStorage
-          // Always preserve user-uploaded avatar if exists
-          avatarUrl: savedData.avatarUrl || (backendData?.avatarUrl) || googleProfile.avatarUrl
-        };
-        
-        console.log('Final merged data:', mergedData);
-        setData(mergedData);
+                // Format children information nicely for bio
+                let childrenInfo = "";
+                if (userFamily.children && typeof userFamily.children === 'object') {
+                  const child = userFamily.children;
+                  const currentYear = new Date().getFullYear();
+                  const birthYear = child.birth_date ? new Date(child.birth_date).getFullYear() : null;
+                  const age = birthYear ? currentYear - birthYear : 'Unknown';
+                  
+                  childrenInfo = `Proud parent of ${child.name || 'my child'} (${age} years old) who plays ${child.sport || 'sports'}. ${child.medical_conditions ? `Special considerations: ${child.medical_conditions}.` : ''}`;
+                }
+
+                backendData = {
+                  role: "family",
+                  name: userFamily.parent_name || googleProfile.name,
+                  email: userFamily.parent_email || googleProfile.email,
+                  phone: userFamily.parent_phone_number || "",
+                  location: location,
+                  bio: `Family member passionate about supporting young athletes. ${childrenInfo}`,
+                  avatarUrl: googleProfile.avatarUrl,
+                  children: userFamily.children || {}
+                };
+                console.log('Backend data set for family:', backendData);
+              }
+            } else {
+              console.log('No family data found, status:', familyResponse.status);
+            }
+          } catch (error) {
+            console.log('Error fetching family data:', error);
+          }
+        }
+
+        console.log('Final backend data:', backendData);
+
+        // Merge with local storage data
+        try {
+          const raw = localStorage.getItem(STORAGE_INFO);
+          const savedData = raw ? JSON.parse(raw) : {};
+          
+          console.log('Local storage data:', savedData);
+          console.log('Backend data:', backendData);
+          console.log('Google profile:', googleProfile);
+          
+          // Priority: backendData > savedData > googleProfile > DEFAULT_PROFILE
+          const mergedData = { 
+            ...DEFAULT_PROFILE, 
+            ...googleProfile, 
+            ...savedData,
+            ...(backendData || {}), // Backend data should override localStorage
+            // Always preserve user-uploaded avatar if exists
+            avatarUrl: savedData.avatarUrl || (backendData?.avatarUrl) || googleProfile.avatarUrl
+          };
+          
+          console.log('Final merged data:', mergedData);
+          setData(mergedData);
+        } catch (error) {
+          console.log('Error with localStorage, using backend data only');
+          // If localStorage fails, use backend or google data
+          const fallbackData = { 
+            ...DEFAULT_PROFILE, 
+            ...googleProfile, 
+            ...(backendData || {})
+          };
+          console.log('Fallback data:', fallbackData);
+          setData(fallbackData);
+        }
       } catch (error) {
-        console.log('Error with localStorage, using backend data only');
-        // If localStorage fails, use backend or google data
-        const fallbackData = { 
-          ...DEFAULT_PROFILE, 
-          ...googleProfile, 
-          ...(backendData || {})
+        console.error('Error fetching user profile:', error);
+        // Fallback to Google data only
+        const googleProfile = {
+          name: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || "User",
+          email: user.email || "",
+          avatarUrl: user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
         };
-        console.log('Fallback data:', fallbackData);
-        setData(fallbackData);
+        setData({ ...DEFAULT_PROFILE, ...googleProfile });
       }
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-      // Fallback to Google data only
-      const googleProfile = {
-        name: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || "User",
-        email: user.email || "",
-        avatarUrl: user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
-      };
-      setData({ ...DEFAULT_PROFILE, ...googleProfile });
-    }
-    };    fetchUserProfile();
+    };
+    
+    fetchUserProfile();
   }, [user]);
 
   // sync draft on edit

@@ -237,9 +237,13 @@ const Dashboard = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#ffffff', padding: 0 }}>
-      <div
-        style={{
+    <>
+      <div style={{ 
+        minHeight: '100vh', 
+        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(255, 255, 255, 0.95) 40%, rgba(168, 85, 247, 0.15) 100%)',
+        padding: '0'
+      }}>
+        <div style={{
           display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',
           minHeight: 'calc(100vh - 60px)',
@@ -247,17 +251,42 @@ const Dashboard = () => {
           padding: isMobile ? '10px' : '20px',
           maxWidth: '1400px',
           margin: '0 auto'
-        }}
-      >
-        <div style={{ flex: isMobile ? 'none' : '2', display: 'flex', flexDirection: 'column', gap: '20px', textAlign: 'center', width: isMobile ? '100%' : 'auto' }}>
-          <div style={{ textAlign: 'center' }}>
-            <h1 style={{ fontSize: isMobile ? '32px' : '48px', fontWeight: 'bold', color: '#000', margin: '0 0 16px 0', lineHeight: 1.2 }}>
-              Welcome Back
-            </h1>
-            <p style={{ fontSize: isMobile ? '16px' : '18px', color: '#000', margin: '0 0 24px 0', lineHeight: 1.5, width: '100%', textAlign: 'center', padding: isMobile ? '0 10px' : 0 }}>
-              Connecting young athletes with college mentors to inspire, empower, and build lasting friendships.
-            </p>
-          </div>
+        }}>
+          {/* Left Content Area */}
+          <div style={{
+            flex: isMobile ? 'none' : '2',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '20px',
+            textAlign: 'center',
+            width: isMobile ? '100%' : 'auto'
+          }}>
+            {/* Welcome Section */}
+            <div style={{textAlign: 'center'}}>
+              <h1 style={{
+                fontSize: isMobile ? '32px' : '48px',
+                fontWeight: 'bold',
+                background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                margin: '0 0 16px 0',
+                lineHeight: '1.2'
+              }}>
+                Welcome Back
+              </h1>
+              <p style={{
+                fontSize: isMobile ? '16px' : '18px',
+                color: '#000000',
+                margin: '0 0 24px 0',
+                lineHeight: '1.5',
+                width: '100%',
+                textAlign: 'center',
+                padding: isMobile ? '0 10px' : '0'
+              }}>
+                Connecting young athletes with college mentors to inspire, empower, and build lasting friendships.
+              </p>
+            </div>
 
           <div style={{ position: 'relative', width: '100%', height: isMobile ? '300px' : '500px', borderRadius: 12, overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
             <img
@@ -289,30 +318,87 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div style={{ flex: isMobile ? 'none' : '1', maxWidth: isMobile ? '100%' : 400, width: isMobile ? '100%' : 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <PairingCard />
-
-          <div style={{ backgroundColor: '#f8f9fa', borderRadius: 12, padding: isMobile ? 16 : 24, height: 'fit-content' }}>
-            <h2 style={{ fontSize: isMobile ? 20 : 24, fontWeight: 'bold', color: '#000', margin: isMobile ? '0 0 16px 0' : '0 0 20px 0' }}>
-              Upcoming Events
-            </h2>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {eventsLoading ? (
-                <div style={{ textAlign: 'center', padding: 20, color: '#6c757d' }}>
-                  <div style={{ marginBottom: 10 }}>Loading events...</div>
-                  <div style={{ fontSize: 12 }}>Fetching upcoming events...</div>
-                </div>
-              ) : eventsError ? (
-                <div style={{ backgroundColor: '#ffe6e6', border: '1px solid #ffcccc', color: '#d63031', padding: 12, borderRadius: 8, fontSize: 14 }}>
-                  Error loading events: {eventsError}
-                </div>
-              ) : upcomingEvents.length > 0 ? (
-                upcomingEvents.map((event, index) => (
-                  <div key={event.id || index} style={{ backgroundColor: '#fff', borderRadius: 8, padding: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                      <h3 style={{ fontSize: 16, fontWeight: 'bold', color: '#000', margin: 0 }}>{event.title}</h3>
-                      <span style={{ backgroundColor: '#e9ecef', color: '#000', padding: '4px 8px', borderRadius: 12, fontSize: 12, fontWeight: 500 }}>
+          {/* Right Sidebar - Upcoming Events */}
+          <div style={{
+            flex: isMobile ? 'none' : '1',
+            maxWidth: isMobile ? '100%' : '400px',
+            width: isMobile ? '100%' : 'auto'
+          }}>
+            <div style={{
+              backgroundColor: '#ffffff',
+              borderRadius: '12px',
+              padding: isMobile ? '16px' : '24px',
+              height: 'fit-content',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+              border: '1px solid rgba(0, 0, 0, 0.05)'
+            }}>
+              <h2 style={{
+                fontSize: isMobile ? '20px' : '24px',
+                fontWeight: 'bold',
+                color: '#000000',
+                margin: isMobile ? '0 0 16px 0' : '0 0 20px 0'
+              }}>
+                Upcoming Events
+              </h2>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {loading ? (
+                  <div style={{ textAlign: 'center', padding: '20px', color: '#6c757d' }}>
+                    <div style={{ marginBottom: '10px' }}>Loading events...</div>
+                    <div style={{ fontSize: '12px' }}>Fetching upcoming events...</div>
+                  </div>
+                ) : error ? (
+                  <div style={{ 
+                    backgroundColor: '#ffe6e6', 
+                    border: '1px solid #ffcccc', 
+                    color: '#d63031',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    fontSize: '14px'
+                  }}>
+                    Error loading events: {error}
+                  </div>
+                ) : upcomingEvents.length > 0 ? (
+                  upcomingEvents.map((event, index) => (
+                    <div key={event.id || index} style={{
+                    backgroundColor: '#ffffff',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)',
+                    border: '1px solid rgba(0, 0, 0, 0.05)',
+                    transition: 'all 0.2s ease-in-out',
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)';
+                    e.currentTarget.style.transform = 'translateY(0px)';
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      marginBottom: '8px'
+                    }}>
+                      <h3 style={{
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        color: '#000000',
+                        margin: '0'
+                      }}>
+                        {event.title}
+                      </h3>
+                      <span style={{
+                        backgroundColor: '#e9ecef',
+                        color: '#000000',
+                        padding: '4px 8px',
+                        borderRadius: '12px',
+                        fontSize: '12px',
+                        fontWeight: '500'
+                      }}>
                         {event.category}
                       </span>
                     </div>
