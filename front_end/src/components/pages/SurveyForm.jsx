@@ -69,7 +69,6 @@ const SurveyForm = () => {
       });
       const payload = buildPayload(accountType, raw);
 
-<<<<<<< HEAD
       // 1) Create Family/Athlete
       const res = await fetch(`${API_BASE}/api/surveys/${accountType}`, {
         method: 'POST',
@@ -79,34 +78,6 @@ const SurveyForm = () => {
       if (!res.ok) {
         const msg = await res.text().catch(() => '');
         throw new Error(msg || `Request failed with ${res.status}`);
-=======
-      // Try to submit to backend, but don't fail if backend is not running
-      try {
-        const res = await fetch(`http://localhost:5000/api/surveys/${accountType}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        if (!res.ok) {
-          const msg = await res.text().catch(() => '');
-          throw new Error(msg || `Request failed with ${res.status}`);
-        }
-      } catch (networkError) {
-        // If backend is not running, continue with local storage only
-        console.log('Backend not available, saving locally only:', networkError.message);
-      }
-
-      // Save user role to localStorage for Connect page
-      try {
-        const existingProfile = JSON.parse(localStorage.getItem('ti_profile_v1') || '{}');
-        const updatedProfile = {
-          ...existingProfile,
-          role: accountType
-        };
-        localStorage.setItem('ti_profile_v1', JSON.stringify(updatedProfile));
-      } catch (error) {
-        console.error('Error saving user role:', error);
->>>>>>> 2c63a62cdb513d4f5bbd65e1070b6029bddc81d8
       }
       const created = await res.json();
 
