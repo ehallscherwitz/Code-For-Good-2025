@@ -5,10 +5,52 @@ import { Calendar, MapPin, Users, Trophy, Heart, PartyPopper, CalendarDays } fro
 export function CreateEventForm() {
   const [userType, setUserType] = useState("");
   const [eventType, setEventType] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState("");
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    console.log("Event created!");
+    setIsSubmitting(true);
+    setSubmitMessage("");
+
+    try {
+      const formData = new FormData(e.target);
+      const eventData = {
+        title: formData.get('title'),
+        description: formData.get('description'),
+        event_date: formData.get('date'),
+        event_time: formData.get('time'),
+        location: formData.get('location'),
+        event_type: eventType
+      };
+
+      const response = await fetch('http://localhost:5000/api/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(eventData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create event');
+      }
+
+      const result = await response.json();
+      setSubmitMessage("Event created successfully!");
+      
+      // Reset form
+      e.target.reset();
+      setUserType('');
+      setEventType('');
+      
+      setTimeout(() => setSubmitMessage(""), 3000);
+    } catch (error) {
+      console.error('Error creating event:', error);
+      setSubmitMessage("Failed to create event. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -71,7 +113,7 @@ export function CreateEventForm() {
 
             <div className="space-y-2">
               <label htmlFor="title" className="font-medium">Event Title</label>
-              <input id="title" required placeholder="e.g., Home Basketball Game vs. State University"
+              <input id="title" name="title" required placeholder="e.g., Home Basketball Game vs. State University"
                      className="w-full rounded-lg border bg-background px-3 py-2" />
             </div>
 
@@ -80,13 +122,13 @@ export function CreateEventForm() {
                 <label htmlFor="date" className="font-medium">
                   <Calendar className="inline h-4 w-4 mr-1" /> Date
                 </label>
-                <input id="date" type="date" required className="w-full rounded-lg border bg-background px-3 py-2" />
+                <input id="date" name="date" type="date" required className="w-full rounded-lg border bg-background px-3 py-2" />
               </div>
               <div className="space-y-2">
                 <label htmlFor="time" className="font-medium">
                   <CalendarDays className="inline h-4 w-4 mr-1" /> Time
                 </label>
-                <input id="time" type="time" required className="w-full rounded-lg border bg-background px-3 py-2" />
+                <input id="time" name="time" type="time" required className="w-full rounded-lg border bg-background px-3 py-2" />
               </div>
             </div>
 
@@ -94,13 +136,13 @@ export function CreateEventForm() {
               <label htmlFor="location" className="font-medium">
                 <MapPin className="inline h-4 w-4 mr-1" /> Location
               </label>
-              <input id="location" required placeholder="e.g., University Stadium, 123 College Ave"
+              <input id="location" name="location" required placeholder="e.g., University Stadium, 123 College Ave"
                      className="w-full rounded-lg border bg-background px-3 py-2" />
             </div>
 
             <div className="space-y-2">
               <label htmlFor="description" className="font-medium">Description</label>
-              <textarea id="description" rows={4} required
+              <textarea id="description" name="description" rows={4} required
                         placeholder="Share more details, parking info, etc."
                         className="w-full rounded-lg border bg-background px-3 py-2" />
             </div>
@@ -109,7 +151,7 @@ export function CreateEventForm() {
               <label htmlFor="attendees" className="font-medium">
                 <Users className="inline h-4 w-4 mr-1" /> Who Can Attend?
               </label>
-              <select id="attendees" defaultValue="matched"
+              <select id="attendees" name="attendees" defaultValue="matched"
                       className="w-full rounded-lg border bg-background px-3 py-2">
                 <option value="matched">My Matched Family/Athlete</option>
                 <option value="team">My Entire Team IMPACT Network</option>
@@ -131,16 +173,26 @@ export function CreateEventForm() {
           <div className="space-y-6">
             <div className="space-y-2">
               <label htmlFor="special-notes" className="font-medium">Special Notes</label>
-              <textarea id="special-notes" rows={3} className="w-full rounded-lg border bg-background px-3 py-2"
+              <textarea id="special-notes" name="special-notes" rows={3} className="w-full rounded-lg border bg-background px-3 py-2"
                         placeholder="Any special instructions or accessibility info?" />
             </div>
 
             <div className="space-y-2">
               <label htmlFor="contact" className="font-medium">Contact Email (optional)</label>
-              <input id="contact" type="email" className="w-full rounded-lg border bg-background px-3 py-2"
+              <input id="contact" name="contact" type="email" className="w-full rounded-lg border bg-background px-3 py-2"
                      placeholder="your.email@example.com" />
             </div>
           </div>
+        </div>
+      )}
+
+      {submitMessage && (
+        <div className={`p-4 rounded-lg ${
+          submitMessage.includes('successfully') 
+            ? 'bg-green-100 border border-green-400 text-green-700' 
+            : 'bg-red-100 border border-red-400 text-red-700'
+        }`}>
+          {submitMessage}
         </div>
       )}
 
@@ -150,10 +202,18 @@ export function CreateEventForm() {
             <PartyPopper className="inline h-4 w-4 mr-1" />
             Your event will be visible to your Team IMPACT network immediately
           </p>
-          <div className="flex gap-3">
+          <div className="flex gap-s">
             <button type="button" className="rounded-full border px-5 py-3">Save as Draft</button>
-            <button type="submit" className="rounded-full px-5 py-3 bg-primary text-primary-foreground hover:opacity-90">
-              Publish Event
+            <button 
+              type="submit" 
+              disabled={isSubmitting}
+              className={`rounded-full px-5 py-3 text-white ${
+                isSubmitting 
+                  ? 'bg-gray-400 cursor-not-allowed' 
+                  : 'bg-primary text-primary-foreground hover:opacity-90'
+              }`}
+            >
+              {isSubmitting ? 'Creating...' : 'Publish Event'}
             </button>
           </div>
         </div>

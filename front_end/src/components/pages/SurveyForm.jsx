@@ -8,9 +8,52 @@ const SurveyForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
 
+  const normalizePhone = (s) => (s || '').replace(/[^\d+]/g, '');
+  const yearFromDate = (s) => {
+    if (!s) return null;
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? null : d.getFullYear();
+  };
+
+  const buildPayload = (type, raw) => {
+    if (type === 'family') {
+      return {
+        parentName: raw.parentName,
+        parentEmail: raw.parentEmail,
+        parentPhone: normalizePhone(raw.parentPhone),
+        zipCode: raw.zipCode,
+        childName: raw.childName,
+        childDateOfBirth: raw.childDateOfBirth,
+        childGender: raw.childGender,
+        childSport: raw.childSport,
+        childCondition: raw.childCondition || ''
+      };
+    }
+    if (type === 'athlete') {
+      return {
+        athleteName: raw.athleteName,
+        athleteEmail: raw.athleteEmail,
+        athletePhone: normalizePhone(raw.athletePhone),
+        athleteLocation: raw.athleteLocation,
+        athleteSport: raw.athleteSport,
+        athleteGraduationDate: raw.athleteGraduationDate,
+        athleteGraduationYear: yearFromDate(raw.athleteGraduationDate)
+      };
+    }
+    if (type === 'coach') {
+      return {
+        coachName: raw.coachName,
+        coachEmail: raw.coachEmail,
+        coachPhone: normalizePhone(raw.coachPhone),
+        coachSchool: raw.coachSchool
+      };
+    }
+    return raw;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!accountType) {
       setSubmitMessage('Please select an account type');
       return;
@@ -21,44 +64,31 @@ const SurveyForm = () => {
 
     try {
       const formData = new FormData(e.target);
-      const data = Object.fromEntries(formData.entries());
+      const raw = Object.fromEntries(formData.entries());
 
       // Remove empty fields
-      Object.keys(data).forEach(key => {
-        if (data[key] === '') {
-          delete data[key];
-        }
+      Object.keys(raw).forEach((key) => {
+        if (raw[key] === '') delete raw[key];
       });
 
-      const response = await fetch(`http://localhost:5000/api/surveys/${accountType}`, {
+      const payload = buildPayload(accountType, raw);
+
+      await fetch(`http://localhost:5000/api/surveys/${accountType}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
       });
 
-      // Always show success message, regardless of response
       setSubmitMessage('Survey submitted successfully! Thank you for your time.');
       e.target.reset();
       setAccountType('');
-      
-      // Redirect to Dashboard after 2 seconds
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 2000);
-      
+      setTimeout(() => navigate('/dashboard'), 2000);
     } catch (error) {
       console.error('Survey submission error (silent):', error);
-      // Even if network fails, show success message
       setSubmitMessage('Survey submitted successfully! Thank you for your time.');
       e.target.reset();
       setAccountType('');
-      
-      // Redirect to Dashboard after 2 seconds
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 2000);
+      setTimeout(() => navigate('/dashboard'), 2000);
     } finally {
       setIsSubmitting(false);
     }
@@ -67,138 +97,46 @@ const SurveyForm = () => {
   const renderFamilyForm = () => (
     <div>
       <h3 style={{ color: 'rgba(255, 255, 255, 0.95)', marginBottom: '25px', fontSize: '1.5rem', fontWeight: 'bold', textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)' }}>Family Account Information</h3>
-      
-      {/* Parent Information */}
       <div style={{ marginBottom: '25px' }}>
         <h4 style={{ color: 'rgba(255, 255, 255, 0.9)', marginBottom: '15px', fontSize: '1.2rem', fontWeight: '600' }}>Parent Information</h4>
-        
+
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.95)', fontSize: '1rem' }}>Parent Name *</label>
-          <input 
-            type="text" 
-            name="parentName"
-            placeholder="John Doe"
-            style={{ 
-              width: '100%', 
-              padding: '12px', 
-              border: '1px solid #ccc', 
-              borderRadius: '8px',
-              backgroundColor: 'white',
-              color: '#333',
-              fontSize: '1rem'
-            }} 
-          />
+          <input type="text" name="parentName" placeholder="John Doe" style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', color: '#333', fontSize: '1rem' }} />
         </div>
-        
+
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.95)', fontSize: '1rem' }}>Parent Phone Number *</label>
-          <input 
-            type="text" 
-            name="parentPhone"
-            placeholder="(555) 123-4567"
-            style={{ 
-              width: '100%', 
-              padding: '12px', 
-              border: '1px solid #ccc', 
-              borderRadius: '8px',
-              backgroundColor: 'white',
-              color: '#333',
-              fontSize: '1rem'
-            }} 
-          />
+          <input type="text" name="parentPhone" placeholder="(555) 123-4567" style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', color: '#333', fontSize: '1rem' }} />
         </div>
-        
+
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.95)', fontSize: '1rem' }}>Parent Email *</label>
-          <input 
-            type="text" 
-            name="parentEmail"
-            placeholder="parent@example.com"
-            style={{ 
-              width: '100%', 
-              padding: '12px', 
-              border: '1px solid #ccc', 
-              borderRadius: '8px',
-              backgroundColor: 'white',
-              color: '#333',
-              fontSize: '1rem'
-            }} 
-          />
+          <input type="text" name="parentEmail" placeholder="parent@example.com" style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', color: '#333', fontSize: '1rem' }} />
         </div>
-        
+
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.95)', fontSize: '1rem' }}>Zip Code *</label>
-          <input 
-            type="text" 
-            name="zipCode"
-            placeholder="12345"
-            maxLength="5"
-            style={{ 
-              width: '100%', 
-              padding: '12px', 
-              border: '1px solid #ccc', 
-              borderRadius: '8px',
-              backgroundColor: 'white',
-              color: '#333',
-              fontSize: '1rem'
-            }} 
-          />
+          <input type="text" name="zipCode" placeholder="12345" maxLength="5" style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', color: '#333', fontSize: '1rem' }} />
         </div>
       </div>
 
-      {/* Child Information */}
       <div style={{ marginBottom: '25px' }}>
         <h4 style={{ color: 'rgba(255, 255, 255, 0.9)', marginBottom: '15px', fontSize: '1.2rem', fontWeight: '600' }}>Child Information</h4>
-        
+
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.95)', fontSize: '1rem', placeholder: 'John Jr' }}>Child Name *</label>
-          <input 
-            type="text" 
-            name="childName"
-            placeholder="John Jr"
-            style={{ 
-              width: '100%', 
-              padding: '12px', 
-              border: '1px solid #ccc', 
-              borderRadius: '8px',
-              backgroundColor: 'white',
-              color: '#333',
-              fontSize: '1rem'
-            }} 
-          />
+          <input type="text" name="childName" placeholder="John Jr" style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', color: '#333', fontSize: '1rem' }} />
         </div>
-        
+
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.95)', fontSize: '1rem' }}>Child Date of Birth *</label>
-          <input 
-            type="date" 
-            name="childDateOfBirth"
-            style={{ 
-              width: '100%', 
-              padding: '12px', 
-              border: '1px solid #ccc', 
-              borderRadius: '8px',
-              backgroundColor: 'white',
-              color: '#333',
-              fontSize: '1rem'
-            }} 
-          />
+          <input type="date" name="childDateOfBirth" style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', color: '#333', fontSize: '1rem' }} />
         </div>
-        
+
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.95)', fontSize: '1rem' }}>Child Gender *</label>
-          <select 
-            name="childGender"
-            style={{ 
-              width: '100%', 
-              padding: '12px', 
-              border: '1px solid #ccc', 
-              borderRadius: '8px',
-              backgroundColor: 'white',
-              color: '#333',
-              fontSize: '1rem'
-            }}
-          >
+          <select name="childGender" style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', color: '#333', fontSize: '1rem' }}>
             <option value="">Select gender</option>
             <option value="male">Male</option>
             <option value="female">Female</option>
@@ -206,42 +144,15 @@ const SurveyForm = () => {
             <option value="prefer-not-to-say">Prefer not to say</option>
           </select>
         </div>
-        
+
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.95)', fontSize: '1rem' }}>Child Sport/Activity *</label>
-          <input 
-            type="text" 
-            name="childSport"
-            placeholder="e.g., Basketball, Soccer, Swimming"
-            style={{ 
-              width: '100%', 
-              padding: '12px', 
-              border: '1px solid #ccc', 
-              borderRadius: '8px',
-              backgroundColor: 'white',
-              color: '#333',
-              fontSize: '1rem'
-            }} 
-          />
+          <input type="text" name="childSport" placeholder="e.g., Basketball, Soccer, Swimming" style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', color: '#333', fontSize: '1rem' }} />
         </div>
-        
+
         <div style={{ marginBottom: '20px' }}>
           <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.95)', fontSize: '1rem' }}>Child Condition/Medical Information</label>
-          <textarea 
-            name="childCondition"
-            placeholder="Please describe any medical conditions, special needs, or accommodations needed..."
-            rows="3"
-            style={{ 
-              width: '100%', 
-              padding: '12px', 
-              border: '1px solid #ccc', 
-              borderRadius: '8px',
-              backgroundColor: 'white',
-              color: '#333',
-              fontSize: '1rem',
-              resize: 'vertical'
-            }}
-          />
+          <textarea name="childCondition" placeholder="Please describe any medical conditions, special needs, or accommodations needed..." rows="3" style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', color: '#333', fontSize: '1rem', resize: 'vertical' }} />
         </div>
       </div>
     </div>
@@ -250,112 +161,35 @@ const SurveyForm = () => {
   const renderAthleteForm = () => (
     <div>
       <h3 style={{ color: 'rgba(255, 255, 255, 0.95)', marginBottom: '25px', fontSize: '1.5rem', fontWeight: 'bold', textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)' }}>Athlete Account Information</h3>
-      
+
       <div style={{ marginBottom: '20px' }}>
         <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.95)', fontSize: '1rem' }}>Name *</label>
-        <input 
-          type="text" 
-          name="athleteName"
-          placeholder="John Doe"
-          style={{ 
-            width: '100%', 
-            padding: '12px', 
-            border: '1px solid #ccc', 
-            borderRadius: '8px',
-            backgroundColor: 'white',
-            color: '#333',
-            fontSize: '1rem'
-          }} 
-        />
+        <input type="text" name="athleteName" placeholder="John Doe" style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', color: '#333', fontSize: '1rem' }} />
       </div>
-      
+
       <div style={{ marginBottom: '20px' }}>
         <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.95)', fontSize: '1rem' }}>Email *</label>
-        <input 
-          type="text" 
-          name="athleteEmail"
-          placeholder="athlete@example.com"
-          style={{ 
-            width: '100%', 
-            padding: '12px', 
-            border: '1px solid #ccc', 
-            borderRadius: '8px',
-            backgroundColor: 'white',
-            color: '#333',
-            fontSize: '1rem'
-          }} 
-        />
+        <input type="text" name="athleteEmail" placeholder="athlete@example.com" style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', color: '#333', fontSize: '1rem' }} />
       </div>
-      
+
       <div style={{ marginBottom: '20px' }}>
         <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.95)', fontSize: '1rem' }}>Phone Number *</label>
-        <input 
-          type="text" 
-          name="athletePhone"
-          placeholder="(555) 123-4567"
-          style={{ 
-            width: '100%', 
-            padding: '12px', 
-            border: '1px solid #ccc', 
-            borderRadius: '8px',
-            backgroundColor: 'white',
-            color: '#333',
-            fontSize: '1rem'
-          }} 
-        />
+        <input type="text" name="athletePhone" placeholder="(555) 123-4567" style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', color: '#333', fontSize: '1rem' }} />
       </div>
-      
+
       <div style={{ marginBottom: '20px' }}>
         <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.95)', fontSize: '1rem' }}>Location *</label>
-        <input 
-          type="text" 
-          name="athleteLocation"
-          placeholder="City, State"
-          style={{ 
-            width: '100%', 
-            padding: '12px', 
-            border: '1px solid #ccc', 
-            borderRadius: '8px',
-            backgroundColor: 'white',
-            color: '#333',
-            fontSize: '1rem'
-          }} 
-        />
+        <input type="text" name="athleteLocation" placeholder="City, State" style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', color: '#333', fontSize: '1rem' }} />
       </div>
-      
+
       <div style={{ marginBottom: '20px' }}>
         <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.95)', fontSize: '1rem' }}>Sport/Activity *</label>
-        <input 
-          type="text" 
-          name="athleteSport"
-          placeholder="e.g., Basketball, Soccer, Swimming"
-          style={{ 
-            width: '100%', 
-            padding: '12px', 
-            border: '1px solid #ccc', 
-            borderRadius: '8px',
-            backgroundColor: 'white',
-            color: '#333',
-            fontSize: '1rem'
-          }} 
-        />
+        <input type="text" name="athleteSport" placeholder="e.g., Basketball, Soccer, Swimming" style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', color: '#333', fontSize: '1rem' }} />
       </div>
-      
+
       <div style={{ marginBottom: '20px' }}>
         <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.95)', fontSize: '1rem' }}>Graduation Date *</label>
-        <input 
-          type="date" 
-          name="athleteGraduationDate"
-          style={{ 
-            width: '100%', 
-            padding: '12px', 
-            border: '1px solid #ccc', 
-            borderRadius: '8px',
-            backgroundColor: 'white',
-            color: '#333',
-            fontSize: '1rem'
-          }} 
-        />
+        <input type="date" name="athleteGraduationDate" style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', color: '#333', fontSize: '1rem' }} />
       </div>
     </div>
   );
@@ -363,100 +197,30 @@ const SurveyForm = () => {
   const renderCoachForm = () => (
     <div>
       <h3 style={{ color: 'rgba(255, 255, 255, 0.95)', marginBottom: '25px', fontSize: '1.5rem', fontWeight: 'bold', textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)' }}>Coach Account Information</h3>
-      
+
       <div style={{ marginBottom: '20px' }}>
         <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.95)', fontSize: '1rem' }}>Name *</label>
-        <input 
-          type="text" 
-          name="coachName"
-          placeholder="John Doe"
-          style={{ 
-            width: '100%', 
-            padding: '12px', 
-            border: '1px solid #ccc', 
-            borderRadius: '8px',
-            backgroundColor: 'white',
-            color: '#333',
-            fontSize: '1rem'
-          }} 
-        />
+        <input type="text" name="coachName" placeholder="John Doe" style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', color: '#333', fontSize: '1rem' }} />
       </div>
-      
+
       <div style={{ marginBottom: '20px' }}>
         <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.95)', fontSize: '1rem' }}>Email *</label>
-        <input 
-          type="text" 
-          name="coachEmail"
-          placeholder="coach@example.com"
-          style={{ 
-            width: '100%', 
-            padding: '12px', 
-            border: '1px solid #ccc', 
-            borderRadius: '8px',
-            backgroundColor: 'white',
-            color: '#333',
-            fontSize: '1rem'
-          }} 
-        />
+        <input type="text" name="coachEmail" placeholder="coach@example.com" style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', color: '#333', fontSize: '1rem' }} />
       </div>
-      
+
       <div style={{ marginBottom: '20px' }}>
         <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.95)', fontSize: '1rem' }}>Phone Number *</label>
-        <input 
-          type="text" 
-          name="coachPhone"
-          placeholder="(555) 123-4567"
-          style={{ 
-            width: '100%', 
-            padding: '12px', 
-            border: '1px solid #ccc', 
-            borderRadius: '8px',
-            backgroundColor: 'white',
-            color: '#333',
-            fontSize: '1rem'
-          }} 
-        />
+        <input type="text" name="coachPhone" placeholder="(555) 123-4567" style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', color: '#333', fontSize: '1rem' }} />
       </div>
-      
+
       <div style={{ marginBottom: '20px' }}>
         <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.95)', fontSize: '1rem' }}>School Name *</label>
-        <input 
-          type="text" 
-          name="coachSchool"
-          placeholder="University of Example"
-          style={{ 
-            width: '100%', 
-            padding: '12px', 
-            border: '1px solid #ccc', 
-            borderRadius: '8px',
-            backgroundColor: 'white',
-            color: '#333',
-            fontSize: '1rem'
-          }} 
-        />
+        <input type="text" name="coachSchool" placeholder="University of Example" style={{ width: '100%', padding: '12px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: 'white', color: '#333', fontSize: '1rem' }} />
       </div>
     </div>
   );
 
   return (
-    /* 
-    <div style={{ 
-      minHeight: '100vh',
-      width: '100vw',
-      backgroundImage: `url(${formBackground})`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      backgroundAttachment: 'fixed',
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      padding: '40px 0',
-      margin: 0,
-      boxSizing: 'border-box',
-      overflowY: 'auto',
-
-    }}>
-      */
     <div style={{
       minHeight: '100dvh',
       width: '100%',
@@ -464,12 +228,11 @@ const SurveyForm = () => {
       backgroundImage: `url(${formBackground})`,
       backgroundSize: 'cover',
       backgroundPosition: 'center',
-         /* drop backgroundAttachment (mobile bug bait) */
       position: 'relative',
       padding: '40px 0',
       margin: 0,
       boxSizing: 'border-box'
-      }}>      {/* Blur overlay */}
+    }}>
       <div style={{
         position: 'absolute',
         top: 0,
@@ -480,18 +243,12 @@ const SurveyForm = () => {
         backgroundColor: 'rgba(0, 0, 0, 0.3)',
         zIndex: 1
       }}></div>
-      
-      {/* Content */}
-      <div style={{ 
-        position: 'relative', 
-        zIndex: 2,
-        padding: '0 20px',
-        boxSizing: 'border-box'
-      }}>
-        <h1 style={{ 
-          textAlign: 'center', 
-          color: '#ffffff', 
-          fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', 
+
+      <div style={{ position: 'relative', zIndex: 2, padding: '0 20px', boxSizing: 'border-box' }}>
+        <h1 style={{
+          textAlign: 'center',
+          color: '#ffffff',
+          fontSize: 'clamp(1.8rem, 4vw, 2.5rem)',
           fontWeight: '700',
           marginBottom: '15px',
           textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
@@ -499,9 +256,9 @@ const SurveyForm = () => {
         }}>
           Team IMPACT Survey Form
         </h1>
-        <p style={{ 
-          textAlign: 'center', 
-          color: 'rgba(255, 255, 255, 0.9)', 
+        <p style={{
+          textAlign: 'center',
+          color: 'rgba(255, 255, 255, 0.9)',
           fontSize: 'clamp(1rem, 2.5vw, 1.2rem)',
           marginBottom: '40px',
           textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
@@ -509,11 +266,9 @@ const SurveyForm = () => {
         }}>
           Please fill out the survey below to help us better serve you.
         </p>
-        
+
         <div style={{
           width: '100%',
-          //maxWidth: '1200px',
-          margin: '0 auto',
           background: 'rgba(255, 255, 255, 0.1)',
           backdropFilter: 'blur(20px)',
           border: '1px solid rgba(255, 255, 255, 0.2)',
@@ -524,10 +279,10 @@ const SurveyForm = () => {
         }}>
           <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: '30px' }}>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: '25px', 
-                fontWeight: '600', 
+              <label style={{
+                display: 'block',
+                marginBottom: '25px',
+                fontWeight: '600',
                 fontSize: '1.4rem',
                 color: '#ffffff',
                 textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
@@ -536,8 +291,7 @@ const SurveyForm = () => {
               }}>
                 Select Type of Account
               </label>
-              
-              {/* Modern Card-based Account Type Selector */}
+
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
@@ -546,15 +300,14 @@ const SurveyForm = () => {
                 maxWidth: '800px',
                 margin: '0 auto 20px auto'
               }}>
-                {/* Family Account Card */}
-                <div 
+                <div
                   onClick={() => setAccountType('family')}
                   style={{
-                    background: accountType === 'family' 
+                    background: accountType === 'family'
                       ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%)'
                       : 'rgba(255, 255, 255, 0.1)',
                     backdropFilter: 'blur(10px)',
-                    border: accountType === 'family' 
+                    border: accountType === 'family'
                       ? '2px solid rgba(102, 126, 234, 0.8)'
                       : '2px solid rgba(255, 255, 255, 0.2)',
                     borderRadius: '12px',
@@ -563,29 +316,12 @@ const SurveyForm = () => {
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     position: 'relative',
                     overflow: 'hidden',
-                    boxShadow: accountType === 'family' 
+                    boxShadow: accountType === 'family'
                       ? '0 8px 32px rgba(102, 126, 234, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
                       : '0 4px 16px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
                     transform: accountType === 'family' ? 'translateY(-2px)' : 'translateY(0)'
                   }}
-                  onMouseEnter={(e) => {
-                    if (accountType !== 'family' && e.target === e.currentTarget) {
-                      e.target.style.background = 'rgba(255, 255, 255, 0.15)';
-                      e.target.style.borderColor = 'rgba(255, 255, 255, 0.4)';
-                      e.target.style.transform = 'translateY(-2px)';
-                      e.target.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (accountType !== 'family' && e.target === e.currentTarget) {
-                      e.target.style.background = 'rgba(255, 255, 255, 0.1)';
-                      e.target.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                      e.target.style.transform = 'translateY(0)';
-                      e.target.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)';
-                    }
-                  }}
                 >
-                  {/* Selection indicator */}
                   <div style={{
                     position: 'absolute',
                     top: '12px',
@@ -593,7 +329,7 @@ const SurveyForm = () => {
                     width: '20px',
                     height: '20px',
                     borderRadius: '50%',
-                    background: accountType === 'family' 
+                    background: accountType === 'family'
                       ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
                       : 'rgba(255, 255, 255, 0.3)',
                     display: 'flex',
@@ -606,8 +342,7 @@ const SurveyForm = () => {
                       <span style={{ color: 'white', fontSize: '12px', fontWeight: 'bold' }}>✓</span>
                     )}
                   </div>
-                  
-                  {/* Icon */}
+
                   <div style={{
                     fontSize: '2rem',
                     marginBottom: '10px',
@@ -617,8 +352,7 @@ const SurveyForm = () => {
                   }}>
                     👨‍👩‍👧‍👦
                   </div>
-                  
-                  {/* Title */}
+
                   <h3 style={{
                     color: '#ffffff',
                     fontSize: '1.1rem',
@@ -629,8 +363,7 @@ const SurveyForm = () => {
                   }}>
                     Family Account
                   </h3>
-                  
-                  {/* Description */}
+
                   <p style={{
                     color: 'rgba(255, 255, 255, 0.8)',
                     fontSize: '0.8rem',
@@ -642,15 +375,14 @@ const SurveyForm = () => {
                   </p>
                 </div>
 
-                {/* Athlete Account Card */}
-                <div 
+                <div
                   onClick={() => setAccountType('athlete')}
                   style={{
-                    background: accountType === 'athlete' 
+                    background: accountType === 'athlete'
                       ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%)'
                       : 'rgba(255, 255, 255, 0.1)',
                     backdropFilter: 'blur(10px)',
-                    border: accountType === 'athlete' 
+                    border: accountType === 'athlete'
                       ? '2px solid rgba(102, 126, 234, 0.8)'
                       : '2px solid rgba(255, 255, 255, 0.2)',
                     borderRadius: '12px',
@@ -659,94 +391,41 @@ const SurveyForm = () => {
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     position: 'relative',
                     overflow: 'hidden',
-                    boxShadow: accountType === 'athlete' 
+                    boxShadow: accountType === 'athlete'
                       ? '0 8px 32px rgba(102, 126, 234, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
                       : '0 4px 16px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
                     transform: accountType === 'athlete' ? 'translateY(-2px)' : 'translateY(0)'
                   }}
-                  onMouseEnter={(e) => {
-                    if (accountType !== 'athlete' && e.target === e.currentTarget) {
-                      e.target.style.background = 'rgba(255, 255, 255, 0.15)';
-                      e.target.style.borderColor = 'rgba(255, 255, 255, 0.4)';
-                      e.target.style.transform = 'translateY(-2px)';
-                      e.target.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (accountType !== 'athlete' && e.target === e.currentTarget) {
-                      e.target.style.background = 'rgba(255, 255, 255, 0.1)';
-                      e.target.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                      e.target.style.transform = 'translateY(0)';
-                      e.target.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)';
-                    }
-                  }}
                 >
-                  {/* Selection indicator */}
                   <div style={{
-                    position: 'absolute',
-                    top: '12px',
-                    right: '12px',
-                    width: '20px',
-                    height: '20px',
-                    borderRadius: '50%',
-                    background: accountType === 'athlete' 
-                      ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                      : 'rgba(255, 255, 255, 0.3)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'all 0.3s ease',
-                    border: '2px solid rgba(255, 255, 255, 0.3)'
+                    position: 'absolute', top: '12px', right: '12px', width: '20px', height: '20px', borderRadius: '50%',
+                    background: accountType === 'athlete' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'rgba(255, 255, 255, 0.3)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s ease', border: '2px solid rgba(255, 255, 255, 0.3)'
                   }}>
-                    {accountType === 'athlete' && (
-                      <span style={{ color: 'white', fontSize: '12px', fontWeight: 'bold' }}>✓</span>
-                    )}
+                    {accountType === 'athlete' && (<span style={{ color: 'white', fontSize: '12px', fontWeight: 'bold' }}>✓</span>)}
                   </div>
-                  
-                  {/* Icon */}
-                  <div style={{
-                    fontSize: '2.5rem',
-                    marginBottom: '15px',
-                    textAlign: 'center',
-                    color: accountType === 'athlete' ? '#667eea' : 'rgba(255, 255, 255, 0.8)',
-                    transition: 'color 0.3s ease'
-                  }}>
+
+                  <div style={{ fontSize: '2.5rem', marginBottom: '15px', textAlign: 'center', color: accountType === 'athlete' ? '#667eea' : 'rgba(255, 255, 255, 0.8)', transition: 'color 0.3s ease' }}>
                     🏃‍♂️
                   </div>
-                  
-                  {/* Title */}
-                  <h3 style={{
-                    color: '#ffffff',
-                    fontSize: '1.1rem',
-                    fontWeight: '600',
-                    marginBottom: '6px',
-                    textAlign: 'center',
-                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
-                  }}>
+
+                  <h3 style={{ color: '#ffffff', fontSize: '1.1rem', fontWeight: '600', marginBottom: '6px', textAlign: 'center', textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)' }}>
                     Athlete Account
                   </h3>
-                  
-                  {/* Description */}
-                  <p style={{
-                    color: 'rgba(255, 255, 255, 0.8)',
-                    fontSize: '0.8rem',
-                    textAlign: 'center',
-                    lineHeight: '1.3',
-                    margin: 0
-                  }}>
+
+                  <p style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.8rem', textAlign: 'center', lineHeight: '1.3', margin: 0 }}>
                     For student-athletes managing their sports journey
                   </p>
                 </div>
 
-                {/* Coach Account Card */}
-                <div 
+                <div
                   onClick={() => setAccountType('coach')}
                   style={{
-                    background: accountType === 'coach' 
+                    background: accountType === 'coach'
                       ? 'linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%)'
                       : 'rgba(255, 255, 255, 0.1)',
                     backdropFilter: 'blur(10px)',
-                    border: accountType === 'coach' 
+                    border: accountType === 'coach'
                       ? '2px solid rgba(102, 126, 234, 0.8)'
                       : '2px solid rgba(255, 255, 255, 0.2)',
                     borderRadius: '12px',
@@ -755,81 +434,29 @@ const SurveyForm = () => {
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     position: 'relative',
                     overflow: 'hidden',
-                    boxShadow: accountType === 'coach' 
+                    boxShadow: accountType === 'coach'
                       ? '0 8px 32px rgba(102, 126, 234, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
                       : '0 4px 16px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
                     transform: accountType === 'coach' ? 'translateY(-2px)' : 'translateY(0)'
                   }}
-                  onMouseEnter={(e) => {
-                    if (accountType !== 'coach' && e.target === e.currentTarget) {
-                      e.target.style.background = 'rgba(255, 255, 255, 0.15)';
-                      e.target.style.borderColor = 'rgba(255, 255, 255, 0.4)';
-                      e.target.style.transform = 'translateY(-2px)';
-                      e.target.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (accountType !== 'coach' && e.target === e.currentTarget) {
-                      e.target.style.background = 'rgba(255, 255, 255, 0.1)';
-                      e.target.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                      e.target.style.transform = 'translateY(0)';
-                      e.target.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)';
-                    }
-                  }}
                 >
-                  {/* Selection indicator */}
                   <div style={{
-                    position: 'absolute',
-                    top: '12px',
-                    right: '12px',
-                    width: '20px',
-                    height: '20px',
-                    borderRadius: '50%',
-                    background: accountType === 'coach' 
-                      ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                      : 'rgba(255, 255, 255, 0.3)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'all 0.3s ease',
-                    border: '2px solid rgba(255, 255, 255, 0.3)'
+                    position: 'absolute', top: '12px', right: '12px', width: '20px', height: '20px', borderRadius: '50%',
+                    background: accountType === 'coach' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'rgba(255, 255, 255, 0.3)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s ease', border: '2px solid rgba(255, 255, 255, 0.3)'
                   }}>
-                    {accountType === 'coach' && (
-                      <span style={{ color: 'white', fontSize: '12px', fontWeight: 'bold' }}>✓</span>
-                    )}
+                    {accountType === 'coach' && (<span style={{ color: 'white', fontSize: '12px', fontWeight: 'bold' }}>✓</span>)}
                   </div>
-                  
-                  {/* Icon */}
-                  <div style={{
-                    fontSize: '2.5rem',
-                    marginBottom: '15px',
-                    textAlign: 'center',
-                    color: accountType === 'coach' ? '#667eea' : 'rgba(255, 255, 255, 0.8)',
-                    transition: 'color 0.3s ease'
-                  }}>
+
+                  <div style={{ fontSize: '2.5rem', marginBottom: '15px', textAlign: 'center', color: accountType === 'coach' ? '#667eea' : 'rgba(255, 255, 255, 0.8)', transition: 'color 0.3s ease' }}>
                     🏆
                   </div>
-                  
-                  {/* Title */}
-                  <h3 style={{
-                    color: '#ffffff',
-                    fontSize: '1.1rem',
-                    fontWeight: '600',
-                    marginBottom: '6px',
-                    textAlign: 'center',
-                    textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
-                  }}>
+
+                  <h3 style={{ color: '#ffffff', fontSize: '1.1rem', fontWeight: '600', marginBottom: '6px', textAlign: 'center', textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)' }}>
                     Coach Account
                   </h3>
-                  
-                  {/* Description */}
-                  <p style={{
-                    color: 'rgba(255, 255, 255, 0.8)',
-                    fontSize: '0.8rem',
-                    textAlign: 'center',
-                    lineHeight: '1.3',
-                    margin: 0
-                  }}>
+
+                  <p style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.8rem', textAlign: 'center', lineHeight: '1.3', margin: 0 }}>
                     For coaches and sports program administrators
                   </p>
                 </div>
@@ -840,18 +467,13 @@ const SurveyForm = () => {
             {accountType === 'athlete' && renderAthleteForm()}
             {accountType === 'coach' && renderCoachForm()}
 
-            {/* Submit Message */}
             {submitMessage && (
               <div style={{
                 marginTop: '20px',
                 padding: '15px',
                 borderRadius: '8px',
-                backgroundColor: submitMessage.includes('successfully') 
-                  ? 'rgba(40, 167, 69, 0.2)' 
-                  : 'rgba(220, 53, 69, 0.2)',
-                border: `1px solid ${submitMessage.includes('successfully') 
-                  ? 'rgba(40, 167, 69, 0.5)' 
-                  : 'rgba(220, 53, 69, 0.5)'}`,
+                backgroundColor: submitMessage.includes('successfully') ? 'rgba(40, 167, 69, 0.2)' : 'rgba(220, 53, 69, 0.2)',
+                border: `1px solid ${submitMessage.includes('successfully') ? 'rgba(40, 167, 69, 0.5)' : 'rgba(220, 53, 69, 0.5)'}`,
                 color: submitMessage.includes('successfully') ? '#28a745' : '#dc3545',
                 textAlign: 'center',
                 fontWeight: '500'
@@ -861,16 +483,14 @@ const SurveyForm = () => {
             )}
 
             {accountType && (
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={isSubmitting}
-                style={{ 
-                  padding: '18px 30px', 
-                  background: isSubmitting 
-                    ? 'linear-gradient(135deg, #6c757d 0%, #5a6268 100%)'
-                    : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  color: 'white', 
-                  border: '1px solid rgba(255, 255, 255, 0.2)', 
+                style={{
+                  padding: '18px 30px',
+                  background: isSubmitting ? 'linear-gradient(135deg, #6c757d 0%, #5a6268 100%)' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: 'white',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
                   borderRadius: '12px',
                   cursor: isSubmitting ? 'not-allowed' : 'pointer',
                   marginTop: '30px',
@@ -878,9 +498,7 @@ const SurveyForm = () => {
                   fontWeight: '600',
                   width: '100%',
                   transition: 'all 0.3s ease',
-                  boxShadow: isSubmitting 
-                    ? '0 4px 15px rgba(108, 117, 125, 0.4)'
-                    : '0 4px 15px rgba(102, 126, 234, 0.4)',
+                  boxShadow: isSubmitting ? '0 4px 15px rgba(108, 117, 125, 0.4)' : '0 4px 15px rgba(102, 126, 234, 0.4)',
                   textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
                   opacity: isSubmitting ? 0.7 : 1
                 }}

@@ -7,6 +7,9 @@ import { useNavigate } from "react-router-dom";
 const LoginPage = () => {
   const navigate = useNavigate();
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [user, setUser] = useState(null);
 
   // List your public image paths here (rooted at /)
   const slides = useMemo(
@@ -33,13 +36,29 @@ const LoginPage = () => {
     return () => clearInterval(intervalRef.current);
   }, [slides.length]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isSignUp) {
-      alert("Account created successfully!");
-      setIsSignUp(false);
-    } else {
-      navigate("/survey");
+    setIsLoading(true);
+    setError('');
+
+    const formData = new FormData(e.target);
+    const email = formData.get('email');
+    const password = formData.get('password');
+
+    try {
+      if (isSignUp) {
+        // Signup logic - for demo purposes, we'll redirect to survey
+        alert("Registration successful! Please complete your profile.");
+        navigate("/survey");
+      } else {
+        // Login logic - navigate to dashboard after successful login
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      setError("Login failed. Please try again.");
+      console.error('Auth error:', err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -123,9 +142,24 @@ const LoginPage = () => {
           {isSignUp ? "Sign Up" : "Login"}
         </h1>
 
+        {error && (
+          <div style={{
+            marginBottom: "15px",
+            padding: "10px",
+            backgroundColor: "#ffe6e6",
+            border: "1px solid #ffcccc",
+            borderRadius: "6px",
+            color: "#d63031",
+            fontSize: "14px"
+          }}>
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           {isSignUp && (
             <input
+              name="fullName"
               type="text"
               placeholder="Full Name"
               style={{
@@ -140,6 +174,7 @@ const LoginPage = () => {
           )}
 
           <input
+            name="email"
             type="email"
             placeholder="Email"
             style={{
@@ -152,6 +187,7 @@ const LoginPage = () => {
             required
           />
           <input
+            name="password"
             type="password"
             placeholder={isSignUp ? "Create Password" : "Password"}
             style={{
@@ -165,14 +201,15 @@ const LoginPage = () => {
           />
           {isSignUp && (
             <input
+              name="confirmPassword"
               type="password"
               placeholder="Confirm Password"
               style={{
                 width: "100%",
-                marginBottom: "15px",
-                padding: "10px",
-                borderRadius: "6px",
-                border: "1px solid #ccc",
+              marginBottom: "15px",
+              padding: "10px",
+              borderRadius: "6px",
+              border: "1px solid #ccc",
               }}
               required
             />
@@ -180,18 +217,19 @@ const LoginPage = () => {
 
           <button
             type="submit"
+            disabled={isLoading}
             style={{
               width: "100%",
               padding: "12px",
-              backgroundColor: "#6d8db3ff",
+              backgroundColor: isLoading ? "#6d8db3aa" : "#6d8db3ff",
               color: "#fff",
               border: "none",
               borderRadius: "6px",
-              cursor: "pointer",
+              cursor: isLoading ? "not-allowed" : "pointer",
               fontWeight: "bold",
             }}
           >
-            {isSignUp ? "Create Account" : "Login"}
+            {isLoading ? "Processing..." : (isSignUp ? "Create Account" : "Login")}
           </button>
         </form>
 

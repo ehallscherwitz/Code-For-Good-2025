@@ -18,7 +18,7 @@ router.post('/family', async (req, res) => {
 
     // Create family record in database
     const { data: family, error: familyError } = await req.supabase
-      .from('FAMILY')
+      .from('family')
       .insert([{
         parent_name: parentName,
         parent_email: parentEmail,
@@ -70,13 +70,12 @@ router.post('/athlete', async (req, res) => {
 
     // Create athlete record in database
     const { data: athlete, error: athleteError } = await req.supabase
-      .from('ATHLETE')
+      .from('athlete')
       .insert([{
         athlete_name: athleteName,
         athlete_email: athleteEmail,
         phone_number: '+1' + athletePhone.replace(/\D/g, ''), // Clean and format phone
         athlete_address: athleteLocation,
-        athlete_number: null, // Can be set later
         graduation_year: new Date(athleteGraduationDate).getFullYear()
       }])
       .select();

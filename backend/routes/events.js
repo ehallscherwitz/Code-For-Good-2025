@@ -15,7 +15,7 @@ router.get('/family/:family_id', async (req, res) => {
   try {
     const { data, error } = await req.supabase.from('EVENT').select('*').eq('parent_id', req.params.family_id);
     if (error) throw error;
-    res.json(data);
+    res.json(data); 
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -70,17 +70,15 @@ router.post('/', async (req, res) => {
     }
 
     const eventData = {
-      title,
-      description: description || null,
+      event_name: title,
+      event_description: description || null,
       event_date,
       event_time,
-      location,
-      event_type: event_type || 'other',
-      attendees: attendees || 'matched',
-      special_notes: special_notes || null,
-      contact_email: contact_email || null,
+      event_location: location,
+      event_status: 'active',
       parent_id: parent_id || null,
-      athlete_id: athlete_id || null
+      athlete_id: athlete_id || null,
+      team_id: null // Can be set later if needed
     };
 
     const { data, error } = await req.supabase.from('EVENT').insert([eventData]).select();

@@ -1,7 +1,7 @@
 
 "use client";
 import { useState } from "react";
-import { Calendar, Users, Bell } from "lucide-react";
+import { Calendar, Users, Bell, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import TeamIMPACTLogo from "../assets/TeamIMPACT_Logo_Standard.webp";
 
@@ -13,6 +13,15 @@ const eventsItems = [
   { label: "Archived", href: "#" },
   { label: "Create New Event", to: "/create-event", highlight: true },
 ];
+
+const managementItems = [
+          { label: "Events", to: "/events" },
+          { label: "Schools", to: "/schools" },
+          { label: "Athletes", to: "/athletes" },
+          { label: "Families", to: "/families" },
+          { label: "Alumni", to: "/alumni" },
+          { label: "Dashboard", to: "/dashboard" },
+        ];
 
 const connectItems = [
   { label: "Messages", href: "#", badge: "12" },
@@ -195,6 +204,13 @@ export default function Navbar() {
               items={connectItems}
               isOpen={activeDropdown === "connect"}
               onToggle={() => setActiveDropdown(activeDropdown === "connect" ? null : "connect")}
+            />
+            <NavDropdown
+              label="Management"
+              icon={Settings}
+              items={managementItems}
+              isOpen={activeDropdown === "management"}
+              onToggle={() => setActiveDropdown(activeDropdown === "management" ? null : "management")}
             />
           </div>
         </div>

@@ -6,6 +6,9 @@ import dashboardCarousel3 from '../../assets/dashboard_carhousel_3.png';
 
 const Dashboard = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   
   const carouselImages = [
     dashboardCarousel1,
@@ -24,24 +27,50 @@ const Dashboard = () => {
     return () => clearInterval(interval);
   }, [carouselImages.length]);
 
-  const upcomingEvents = [
-    {
-      title: "Basketball Skills Workshop",
-      category: "Basketball",
-      date: "March 15, 2025",
-      time: "2:00 PM - 4:00 PM",
-      location: "Community Sports Center",
-      participants: "12 participants"
-    },
-    {
-      title: "Swimming & Adaptive Aquatics",
-      category: "Swimming",
-      date: "March 18, 2025",
-      time: "10:00 AM - 12:00 PM",
-      location: "University Pool",
-      participants: "8 participants"
-    }
-  ];
+  // Fetch real events from API
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('http://localhost:5000/api/events');
+        if (!response.ok) {
+          throw new Error('Failed to fetch events');
+        }
+        const data = await response.json();
+        setEvents(data);
+      } catch (err) {
+        setError(err.message);
+        console.error('Error fetching events:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
+  // Transform API events to display format
+  const formatEventForDisplay = (event) => ({
+    id: event.event_id,
+    title: event.event_name || 'Untitled Event',
+    category: event.event_type || 'General',
+    date: new Date(event.event_date).toLocaleDateString('en-US', { 
+      month: 'long', day: 'numeric', year: 'numeric' 
+    }),
+    time: event.event_time || 'TBD',
+    location: event.event_location || 'TBD',
+    participants: 'Open',
+    description: event.event_description || ''
+  });
+
+  // Get upcoming events (assuming upcoming means future dates)
+  const upcomingEvents = events
+    .filter(event => {
+      const eventDate = new Date(event.event_date);
+      return eventDate >= new Date(); // Current date or future
+    })
+    .slice(0, 5) // Limit to 5 events
+    .map(formatEventForDisplay);
 
   return (
     <>
@@ -164,8 +193,25 @@ const Dashboard = () => {
               </h2>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {upcomingEvents.map((event, index) => (
-                  <div key={index} style={{
+                {loading ? (
+                  <div style={{ textAlign: 'center', padding: '20px', color: '#6c757d' }}>
+                    <div style={{ marginBottom: '10px' }}>Loading events...</div>
+                    <div style={{ fontSize: '12px' }}>Fetching upcoming events...</div>
+                  </div>
+                ) : error ? (
+                  <div style={{ 
+                    backgroundColor: '#ffe6e6', 
+                    border: '1px solid #ffcccc', 
+                    color: '#d63031',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    fontSize: '14px'
+                  }}>
+                    Error loading events: {error}
+                  </div>
+                ) : upcomingEvents.length > 0 ? (
+                  upcomingEvents.map((event, index) => (
+                    <div key={event.id || index} style={{
                     backgroundColor: '#ffffff',
                     borderRadius: '8px',
                     padding: '16px',
@@ -215,8 +261,14 @@ const Dashboard = () => {
                         <span style={{ fontSize: '14px', color: '#000000' }}>{event.participants}</span>
                       </div>
                     </div>
+                    </div>
+                  ))
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '20px', color: '#6c757d' }}>
+                    <div style={{ fontSize: '16px', marginBottom: '8px' }}>No upcoming events</div>
+                    <div style={{ fontSize: '12px' }}>Check back later for new events</div>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>

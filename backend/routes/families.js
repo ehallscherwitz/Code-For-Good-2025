@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
 router.get('/:parent_id', async (req, res) => {
   try {
     const { data, error } = await req.supabase
-      .from('FAMILY')
+      .from('family')
       .select('*')
       .eq('parent_id', req.params.parent_id)
       .single(); 
@@ -40,7 +40,7 @@ router.post('/', async (req, res) => {
     } = req.body;
 
     const { data, error } = await req.supabase
-      .from('FAMILY')
+      .from('family')
       .insert([{
         parent_name,
         parent_email,

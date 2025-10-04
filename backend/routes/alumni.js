@@ -4,7 +4,7 @@ const router = express.Router();
 // GET all alumni
 router.get('/', async (req, res) => {
   try {
-    const { data, error } = await req.supabase.from('ALUMNI').select('*');
+    const { data, error } = await req.supabase.from('alumni').select('*');
     if (error) throw error;
     res.json(data);
   } catch (error) {
@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
 router.get('/year/:year', async (req, res) => {
   try {
     const { data, error } = await req.supabase
-      .from('ALUMNI')
+      .from('alumni')
       .select('*')
       .eq('graduation_year', req.params.year);
     if (error) throw error;
@@ -33,7 +33,7 @@ router.post('/promote-graduates', async (req, res) => {
 
     // Fetch athletes who graduated before current year
     const { data: graduatedAthletes, error: fetchError } = await req.supabase
-      .from('ATHLETE')
+      .from('athlete')
       .select('*')
       .lt('graduation_year', currentYear);
 
@@ -55,7 +55,7 @@ router.post('/promote-graduates', async (req, res) => {
 
     // Insert new alumni
     const { data: newAlumni, error: insertError } = await req.supabase
-      .from('ALUMNI')
+      .from('alumni')
       .insert(alumniData)
       .select();
 
@@ -77,7 +77,7 @@ router.get('/check-graduates', async (req, res) => {
     const currentYear = new Date().getFullYear();
 
     const { data: graduatedAthletes, error } = await req.supabase
-      .from('ATHLETE')
+      .from('athlete')
       .select('athlete_id, athlete_name, graduation_year, athlete_email')
       .lt('graduation_year', currentYear);
 
@@ -104,7 +104,7 @@ router.post('/', async (req, res) => {
       location
     } = req.body;
 
-    const { data, error } = await req.supabase.from('ALUMNI').insert({
+    const { data, error } = await req.supabase.from('alumni').insert({
       alumni_name,
       alumni_email,
       alumni_phone_number,
@@ -123,7 +123,7 @@ router.post('/', async (req, res) => {
 router.delete('/:alumni_id', async (req, res) => {
   try {
     const { error } = await req.supabase
-      .from('ALUMNI')
+      .from('alumni')
       .delete()
       .eq('alumni_id', req.params.alumni_id);
 
