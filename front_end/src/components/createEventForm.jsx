@@ -202,7 +202,7 @@ export function CreateEventForm() {
             <PartyPopper className="inline h-4 w-4 mr-1" />
             Your event will be visible to your Team IMPACT network immediately
           </p>
-          <div className="flex gap-s">
+          <div className="flex gap-4">
             <button type="button" className="rounded-full border px-5 py-3">Save as Draft</button>
             <button 
               type="submit" 
