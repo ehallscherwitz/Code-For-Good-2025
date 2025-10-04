@@ -6,15 +6,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import TeamIMPACTLogo from "../assets/TeamIMPACT_Logo_Standard.webp";
 
-const eventsItems = [
-  { label: "All Events", to: "/events", badge: "24" },
-  { label: "Upcoming", to: "/events", badge: "8" },
-  { label: "Past Events", to: "/events" },
-  { label: "Drafts", to: "/events", badge: "3" },
-  { label: "Archived", to: "/events" },
-  { label: "Create New Event", to: "/create-event", highlight: true },
-];
-
 const managementItems = [
           { label: "Events", to: "/events" },
           { label: "Schools", to: "/schools" },
@@ -23,15 +14,6 @@ const managementItems = [
           { label: "Alumni", to: "/alumni" },
           { label: "Dashboard", to: "/dashboard" },
         ];
-
-const connectItems = [
-  { label: "Messages", href: "#", badge: "12" },
-  { label: "Connections", href: "#", badge: "156" },
-  { label: "Invitations", href: "#", badge: "5" },
-  { label: "Groups", href: "#" },
-  { label: "Following", href: "#" },
-  { label: "Followers", href: "#" },
-];
 
 
 
@@ -227,7 +209,25 @@ export default function Navbar() {
         boxSizing: 'border-box'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '1rem' : '2rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          <button 
+            onClick={() => navigate('/dashboard')}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center',
+              background: 'transparent',
+              border: 'none',
+              padding: 0,
+              cursor: 'pointer',
+              borderRadius: '6px',
+              transition: 'opacity 0.2s ease-in-out'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.opacity = '0.8';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.opacity = '1';
+            }}
+          >
             <img 
               src={TeamIMPACTLogo} 
               alt="TeamIMPACT Logo" 
@@ -237,7 +237,7 @@ export default function Navbar() {
                 objectFit: 'contain'
               }} 
             />
-          </div>
+          </button>
 
           {/* Desktop Navigation */}
           {!isMobile && (
@@ -246,20 +246,60 @@ export default function Navbar() {
               alignItems: 'center', 
               gap: '0.25rem'
             }}>
-              <NavDropdown
-                label="Events"
-                icon={Calendar}
-                items={eventsItems}
-                isOpen={activeDropdown === "events"}
-                onToggle={() => setActiveDropdown(activeDropdown === "events" ? null : "events")}
-              />
-              <NavDropdown
-                label="Connect"
-                icon={Users}
-                items={connectItems}
-                isOpen={activeDropdown === "connect"}
-                onToggle={() => setActiveDropdown(activeDropdown === "connect" ? null : "connect")}
-              />
+              <button
+                onClick={() => navigate('/create-event')}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#A1A1AA',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.5rem 1rem',
+                  cursor: 'pointer',
+                  borderRadius: '6px',
+                  fontSize: '0.875rem',
+                  transition: 'all 0.2s ease-in-out',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#E4E4E7';
+                  e.currentTarget.style.backgroundColor = '#27272A';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = '#A1A1AA';
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                <Calendar size={16} />
+                Create an Event
+              </button>
+              <button
+                onClick={() => navigate('/connect')}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#A1A1AA',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.5rem 1rem',
+                  cursor: 'pointer',
+                  borderRadius: '6px',
+                  fontSize: '0.875rem',
+                  transition: 'all 0.2s ease-in-out',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#E4E4E7';
+                  e.currentTarget.style.backgroundColor = '#27272A';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = '#A1A1AA';
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                <Users size={16} />
+                Connect
+              </button>
               <NavDropdown
                 label="Management"
                 icon={Settings}
