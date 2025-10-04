@@ -7,15 +7,13 @@ import LoginPage from './components/pages/LoginPage';
 import Profile from './components/pages/Profile';
 import SurveyForm from './components/pages/SurveyForm';
 import Dashboard from './components/pages/Dashboard';
-import CreateEventPage from "./components/pages/CreateEventPage.jsx";
+import CreateEventPage from './components/pages/CreateEventPage';
 import AuthCallback from './components/pages/AuthCallback';
 import SchoolsPage from './components/pages/SchoolsPage';
 import AthletesPage from './components/pages/AthletesPage';
 import FamiliesPage from './components/pages/FamiliesPage';
 import AlumniPage from './components/pages/AlumniPage';
 import EventsPage from './components/pages/EventsPage';
-import './App.css';
-
 
 function App() {
   return (
@@ -44,7 +42,7 @@ function App() {
               </Layout>
             } />
             <Route path="/survey" element={
-              <Layout>
+              <Layout fullscreen={true}>
                 <SurveyForm />
               </Layout>
             } />
@@ -90,4 +88,4 @@ function App() {
   );
 }
 
-export default App
+export default App;
