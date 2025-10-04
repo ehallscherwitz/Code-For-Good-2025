@@ -1,117 +1,57 @@
-<<<<<<< HEAD
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-
-const LoginPage = () => {
-  const navigate = useNavigate();
-
-  const handleSubmit = (e) => {
-    e.preventDefault(); // prevent page refresh
-    // You can add login validation here if needed
-    navigate('/survey'); // go to SurveyForm.jsx
-  };
-
-  return (
-    <div 
-      style={{ 
-        position: 'relative',
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        overflow: 'hidden'
-      }}
-    >
-      {/* Fullscreen background image */}
-      <img 
-        src="/Go-team-600x450-1.webp"
-        alt="Background"
-        style={{ 
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100vw',
-          height: '100vh',
-          objectFit: 'cover',
-          zIndex: -1
-        }}
-      />
-
-      {/* Logo in the top-right */}
-      <img 
-        src="/TeamIMPACT_Logo_Standard.webp"
-        alt="Logo"
-        style={{ 
-          position: 'absolute',
-          top: '20px',
-          right: '20px',
-          width: '100px',
-          height: 'auto'
-        }}
-      />
-
-      {/* Login form */}
-      <div 
-        style={{ 
-          background: 'rgba(255, 255, 255, 0.9)', 
-          padding: '30px',
-          borderRadius: '12px',
-          boxShadow: '0px 4px 12px rgba(0,0,0,0.2)',
-          textAlign: 'center',
-          zIndex: 1,
-          width: '100%',
-          maxWidth: '350px'
-        }}
-      >
-        <h1 style={{ marginBottom: '20px' }}>Login</h1>
-        <form style={{ width: '100%' }} onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '15px' }}>
-            <input 
-              type="email" 
-              placeholder="Email" 
-              style={{ 
-                width: '100%', 
-                padding: '10px',
-                borderRadius: '6px',
-                border: '1px solid #ccc'
-              }}
-            />
-          </div>
-          <div style={{ marginBottom: '15px' }}>
-            <input 
-              type="password" 
-              placeholder="Password" 
-              style={{ 
-                width: '100%', 
-                padding: '10px',
-                borderRadius: '6px',
-                border: '1px solid #ccc'
-              }}
-            />
-          </div>
-          <button 
-            type="submit" 
-            style={{ 
-              width: '100%', 
-              padding: '12px',
-              backgroundColor: '#007bff', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontWeight: 'bold'
-            }}
-          >
-            Login
-          </button>
-        </form>
-=======
 import React, { useState } from 'react';
 import formBackground from '../../assets/form_background_img.jpg';
 
 const SurveyForm = () => {
   const [accountType, setAccountType] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!accountType) {
+      setSubmitMessage('Please select an account type');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitMessage('');
+
+    try {
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData.entries());
+
+      // Remove empty fields
+      Object.keys(data).forEach(key => {
+        if (data[key] === '') {
+          delete data[key];
+        }
+      });
+
+      const response = await fetch(`http://localhost:5000/api/surveys/${accountType}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setSubmitMessage('Survey submitted successfully! Thank you for your time.');
+        e.target.reset();
+        setAccountType('');
+      } else {
+        setSubmitMessage(`Error: ${result.message || 'Failed to submit survey'}`);
+      }
+    } catch (error) {
+      console.error('Survey submission error:', error);
+      setSubmitMessage('Error: Failed to submit survey. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const renderFamilyForm = () => (
     <div>
@@ -571,7 +511,7 @@ const SurveyForm = () => {
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
           boxSizing: 'border-box'
         }}>
-          <form>
+          <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: '30px' }}>
               <label style={{ 
                 display: 'block', 
@@ -889,44 +829,73 @@ const SurveyForm = () => {
             {accountType === 'athlete' && renderAthleteForm()}
             {accountType === 'coach' && renderCoachForm()}
 
+            {/* Submit Message */}
+            {submitMessage && (
+              <div style={{
+                marginTop: '20px',
+                padding: '15px',
+                borderRadius: '8px',
+                backgroundColor: submitMessage.includes('successfully') 
+                  ? 'rgba(40, 167, 69, 0.2)' 
+                  : 'rgba(220, 53, 69, 0.2)',
+                border: `1px solid ${submitMessage.includes('successfully') 
+                  ? 'rgba(40, 167, 69, 0.5)' 
+                  : 'rgba(220, 53, 69, 0.5)'}`,
+                color: submitMessage.includes('successfully') ? '#28a745' : '#dc3545',
+                textAlign: 'center',
+                fontWeight: '500'
+              }}>
+                {submitMessage}
+              </div>
+            )}
+
             {accountType && (
               <button 
                 type="submit" 
+                disabled={isSubmitting}
                 style={{ 
                   padding: '18px 30px', 
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  background: isSubmitting 
+                    ? 'linear-gradient(135deg, #6c757d 0%, #5a6268 100%)'
+                    : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                   color: 'white', 
                   border: '1px solid rgba(255, 255, 255, 0.2)', 
                   borderRadius: '12px',
-                  cursor: 'pointer',
+                  cursor: isSubmitting ? 'not-allowed' : 'pointer',
                   marginTop: '30px',
                   fontSize: '1.1rem',
                   fontWeight: '600',
                   width: '100%',
                   transition: 'all 0.3s ease',
-                  boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
-                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+                  boxShadow: isSubmitting 
+                    ? '0 4px 15px rgba(108, 117, 125, 0.4)'
+                    : '0 4px 15px rgba(102, 126, 234, 0.4)',
+                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
+                  opacity: isSubmitting ? 0.7 : 1
                 }}
                 onMouseOver={(e) => {
-                  e.target.style.background = 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)';
-                  e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.6)';
+                  if (!isSubmitting) {
+                    e.target.style.background = 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)';
+                    e.target.style.transform = 'translateY(-2px)';
+                    e.target.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.6)';
+                  }
                 }}
                 onMouseOut={(e) => {
-                  e.target.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)';
+                  if (!isSubmitting) {
+                    e.target.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)';
+                  }
                 }}
               >
-                Submit Survey
+                {isSubmitting ? 'Submitting...' : 'Submit Survey'}
               </button>
             )}
           </form>
         </div>
->>>>>>> 1455d2206cfbc67b2ccbca8ea9f2cd1cd65e666e
       </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default SurveyForm;
