@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 
+const API_BASE = import.meta?.env?.VITE_API_BASE || 'http://localhost:5000';
+
 const AuthCallback = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -20,8 +22,50 @@ const AuthCallback = () => {
         }
 
         if (data.session) {
-          // User is authenticated, redirect to dashboard
-          navigate('/dashboard');
+          // User is authenticated, check if they have completed a survey
+          const userEmail = data.session.user.email;
+          
+          try {
+            // Check if user exists in any of the survey tables
+            const [familyRes, athleteRes, coachRes] = await Promise.all([
+              fetch(`${API_BASE}/api/surveys/check-user`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: userEmail, table: 'family' })
+              }),
+              fetch(`${API_BASE}/api/surveys/check-user`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: userEmail, table: 'athlete' })
+              }),
+              fetch(`${API_BASE}/api/surveys/check-user`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: userEmail, table: 'coach' })
+              })
+            ]);
+
+            const [familyData, athleteData, coachData] = await Promise.all([
+              familyRes.ok ? familyRes.json() : { exists: false },
+              athleteRes.ok ? athleteRes.json() : { exists: false },
+              coachRes.ok ? coachRes.json() : { exists: false }
+            ]);
+
+            // If user exists in any survey table, they've completed the survey
+            const hasCompletedSurvey = familyData.exists || athleteData.exists || coachData.exists;
+            
+            if (hasCompletedSurvey) {
+              // User has completed survey, redirect to dashboard
+              navigate('/dashboard');
+            } else {
+              // User hasn't completed survey, redirect to survey form
+              navigate('/survey');
+            }
+          } catch (checkError) {
+            console.error('Error checking user survey status:', checkError);
+            // If we can't check, assume they need to complete the survey
+            navigate('/survey');
+          }
         } else {
           // No session found, redirect to login
           navigate('/login');
