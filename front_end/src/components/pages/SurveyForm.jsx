@@ -69,15 +69,6 @@ const SurveyForm = () => {
       });
       const payload = buildPayload(accountType, raw);
 
-      // 1) Create Family/Athlete
-      const res = await fetch(`${API_BASE}/api/surveys/${accountType}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) {
-        const msg = await res.text().catch(() => '');
-        throw new Error(msg || `Request failed with ${res.status}`);
       // Try to submit to backend, but don't fail if backend is not running
       let res;
       try {
