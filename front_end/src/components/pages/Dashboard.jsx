@@ -7,7 +7,7 @@ import dashboardCarousel3 from '../../assets/dashboard_carhousel_3.png';
 const API_BASE = import.meta?.env?.VITE_API_BASE || 'http://localhost:5000';
 
 const Dashboard = () => {
-  const { getAccessToken, loading: authLoading } = useAuth();
+  const { user, getAccessToken, loading: authLoading } = useAuth();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [events, setEvents] = useState([]);
   const [eventsLoading, setEventsLoading] = useState(true);
@@ -23,6 +23,12 @@ const Dashboard = () => {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   const carouselImages = useMemo(() => [dashboardCarousel1, dashboardCarousel2, dashboardCarousel3], []);
+
+  // Get user display name
+  const getUserDisplayName = () => {
+    if (!user) return '';
+    return user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || '';
+  };
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -273,7 +279,7 @@ const Dashboard = () => {
                 margin: '0 0 16px 0',
                 lineHeight: '1.2'
               }}>
-                Welcome Back{userName ? `, ${userName}!` : '!'}
+                Welcome Back{getUserDisplayName() ? `, ${getUserDisplayName()}!` : '!'}
               </h1>
               <p style={{
                 fontSize: isMobile ? '16px' : '18px',
