@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 
 /**
  * Minimal Team IMPACT-style profile (vertical)
@@ -11,14 +13,13 @@ const STORAGE_INFO = "ti_profile_v1";
 
 const DEFAULT_PROFILE = {
   role: "family",
-  name: "Alex Thompson",
-  pronouns: "She/her",
-  bio: "Loves lacrosse sidelines, superhero movies, and high-fives. Here to cheer, grow, and lead with the team!",
-  location: "Burlington, MA",
-  email: "alex.family@example.com",
-  phone: "+1 (555) 013-2442",
-  avatarUrl:
-    "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=500&auto=format&fit=crop",
+  name: "User",
+  pronouns: "",
+  bio: "Welcome to Team IMPACT! Tell us about yourself...",
+  location: "",
+  email: "",
+  phone: "",
+  avatarUrl: null,
 };
 
 const BRAND_NAVY = "#1d3e7b";
@@ -33,22 +34,47 @@ function initials(name = "") {
 }
 
 export default function Profile() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
   const [data, setData] = useState(DEFAULT_PROFILE);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(DEFAULT_PROFILE);
   const [busy, setBusy] = useState(false);
   const [geoErr, setGeoErr] = useState("");
 
-  // load from localStorage
+  // Redirect to login if not authenticated
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_INFO);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        setData({ ...DEFAULT_PROFILE, ...parsed });
+    if (!loading && !user) {
+      navigate('/login');
+    }
+  }, [user, loading, navigate]);
+
+  // Initialize profile with Google user data
+  useEffect(() => {
+    if (user) {
+      const googleProfile = {
+        name: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || "User",
+        email: user.email || "",
+        avatarUrl: user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
+      };
+
+      try {
+        const raw = localStorage.getItem(STORAGE_INFO);
+        const savedData = raw ? JSON.parse(raw) : {};
+        
+        // Merge Google data with saved data, prioritizing saved data for non-Google fields
+        setData({ 
+          ...DEFAULT_PROFILE, 
+          ...googleProfile, 
+          ...savedData,
+          // Always use Google avatar if available, unless user has uploaded their own
+          avatarUrl: savedData.avatarUrl || googleProfile.avatarUrl
+        });
+      } catch (_) {
+        setData({ ...DEFAULT_PROFILE, ...googleProfile });
       }
-    } catch (_) {}
-  }, []);
+    }
+  }, [user]);
 
   // sync draft on edit
   useEffect(() => {
@@ -125,6 +151,40 @@ export default function Profile() {
         setGeoErr(err.message || "Location permission denied.");
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+    );
+  }
+
+  // Show loading state while checking authentication
+  if (loading) {
+    return (
+      <div style={{
+        position: "relative",
+        height: "100vh",
+        width: "100vw",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#f5f5f5"
+      }}>
+        <div style={{
+          textAlign: "center",
+          padding: "40px",
+          background: "white",
+          borderRadius: "12px",
+          boxShadow: "0px 4px 12px rgba(0,0,0,0.1)"
+        }}>
+          <div style={{
+            width: "40px",
+            height: "40px",
+            border: "4px solid #f3f3f3",
+            borderTop: "4px solid #6d8db3ff",
+            borderRadius: "50%",
+            animation: "spin 1s linear infinite",
+            margin: "0 auto 20px"
+          }}></div>
+          <p>Loading profile...</p>
+        </div>
+      </div>
     );
   }
 
@@ -353,6 +413,28 @@ export default function Profile() {
             <p style={s.bio}>{data.bio}</p>
           )}
         </div>
+
+        {/* Email */}
+        {data.email && (
+          <div style={{ width: "100%", maxWidth: 680, textAlign: "center" }}>
+            <div style={s.label}>Email</div>
+            <div style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "12px 16px",
+              borderRadius: 999,
+              background: "rgba(29, 62, 123, 0.08)",
+              border: "1px solid rgba(29, 62, 123, 0.2)",
+              color: BRAND_NAVY,
+              fontWeight: 600,
+              fontSize: 16,
+            }}>
+              <span>✉️</span>
+              {data.email}
+            </div>
+          </div>
+        )}
 
         {/* Location (always visible, high contrast) */}
         <div style={{ width: "100%", maxWidth: 680, textAlign: "center" }}>
