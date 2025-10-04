@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-// GET all families
+
 router.get('/', async (req, res) => {
   try {
     const { data, error } = await req.supabase.from('family').select('*');
@@ -12,14 +12,14 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET one family by parent_id
+
 router.get('/:parent_id', async (req, res) => {
   try {
     const { data, error } = await req.supabase
-      .from('family')
+      .from('FAMILY')
       .select('*')
       .eq('parent_id', req.params.parent_id)
-      .single(); // ensures one row or error
+      .single(); 
 
     if (error) throw error;
     res.json(data);
@@ -28,7 +28,7 @@ router.get('/:parent_id', async (req, res) => {
   }
 });
 
-// Create new family
+
 router.post('/', async (req, res) => {
   try {
     const {
@@ -40,7 +40,7 @@ router.post('/', async (req, res) => {
     } = req.body;
 
     const { data, error } = await req.supabase
-      .from('family')
+      .from('FAMILY')
       .insert([{
         parent_name,
         parent_email,
@@ -48,11 +48,11 @@ router.post('/', async (req, res) => {
         location: location || {},
         children: children || {}
       }])
-      .select(); // return inserted row
+      .select(); 
 
     if (error) throw error;
 
-    res.json(data[0]); // return the inserted family
+    res.json(data[0]); 
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

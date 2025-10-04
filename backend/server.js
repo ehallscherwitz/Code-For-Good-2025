@@ -11,24 +11,30 @@ const alumniRouter = require('./routes/alumni');
 const familiesRouter = require('./routes/families');
 const authRouter = require('./routes/auth');
 
+const recommendSchools = require('./routes/recommendations');
+
+
+
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+
 app.use(helmet());
 app.use(cors());
 app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Supabase middleware
 app.use((req, res, next) => {
   const supabase = require('./config/supabase');
   req.supabase = supabase;
   next();
 });
 
-// Root route
+app.use('/api/recommendations', recommendSchools);
+
+
 app.get('/', (req, res) => {
   res.json({
     message: 'Code for Good API is running!',
@@ -46,7 +52,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// Health check
+
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'healthy',
@@ -56,7 +62,6 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Register routes
 app.use('/api/auth', authRouter);
 app.use('/api/schools', schoolsRouter);
 app.use('/api/teams', teamsRouter);
@@ -64,11 +69,11 @@ app.use('/api/athletes', athletesRouter);
 app.use('/api/alumni', alumniRouter);
 app.use('/api/families', familiesRouter);
 
-// Supabase test endpoint
+
 app.get('/api/test-supabase', async (req, res) => {
   try {
     const supabase = require('./config/supabase');
-    const { data, error } = await supabase.from('SCHOOL').select('*').limit(1);
+    const { data, error } = await supabase.from('school').select('*').limit(1);
 
     if (error) {
       return res.status(500).json({
@@ -92,7 +97,7 @@ app.get('/api/test-supabase', async (req, res) => {
   }
 });
 
-// Error handling middleware
+
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
@@ -118,11 +123,25 @@ app.use('*', (req, res) => {
       'GET /api/schools/:id',
       'DELETE /api/schools/:id',
       'GET /api/teams',
-      'GET /api/teams/:school_id',
+      'GET /api/teams/:id',
+      'POST /api/teams',
+      'DELETE /api/teams/:id',
       'GET /api/athletes',
+      'GET /api/athletes/school/:school_id',
       'GET /api/athletes/team/:team_id',
+      'GET /api/athletes/:athlete_id',
+      'POST /api/athletes',
+      'DELETE /api/athletes/:athlete_id',
       'GET /api/alumni',
-      'GET /api/families'
+      'GET /api/alumni/year/:year',
+      'POST /api/alumni/promote-graduates',
+      'GET /api/alumni/check-graduates',
+      'POST /api/alumni',
+      'DELETE /api/alumni/:alumni_id',
+      'GET /api/families',
+      'GET /api/families/:parent_id',
+      'POST /api/families',
+      'POST /api/recommendations/family/:family_id'
     ]
   });
 });
