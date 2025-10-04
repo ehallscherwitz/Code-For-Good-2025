@@ -1,7 +1,7 @@
 
 "use client";
-import { useState } from "react";
-import { Calendar, Users, Bell, Settings } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Calendar, Users, Bell, Settings, Menu, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import TeamIMPACTLogo from "../assets/TeamIMPACT_Logo_Standard.webp";
@@ -147,6 +147,24 @@ export default function Navbar() {
   const { user, signOut } = useAuth();
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  // Handle window resize for responsive design
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+      // Close mobile menu if screen becomes large
+      if (window.innerWidth > 768) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const isMobile = windowWidth <= 768;
 
   const handleSignOut = async () => {
     try {
@@ -188,7 +206,7 @@ export default function Navbar() {
       top: 0,
       left: 0,
       right: 0,
-      width: '100vw',
+      width: '100%',
       minHeight: '80px',
       height: 'auto',
       backgroundColor: '#18181B',
@@ -203,10 +221,11 @@ export default function Navbar() {
         minHeight: '80px',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '1rem 2rem',
-        maxWidth: '1200px',
-        margin: '0 auto',
-        width: '100%'
+        padding: isMobile ? '1rem 1rem' : '1rem 2rem',
+        width: '100%',
+        maxWidth: 'none',
+        margin: 0,
+        boxSizing: 'border-box'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
           <div 
@@ -228,74 +247,96 @@ export default function Navbar() {
             />
           </div>
 
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '0.25rem',
-            '@media (max-width: 768px)': { display: 'none' }
-          }}>
+          {/* Desktop Navigation */}
+          {!isMobile && (
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.25rem'
+            }}>
+              <button
+                onClick={() => navigate('/create-event')}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#A1A1AA',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.75rem 1rem',
+                  cursor: 'pointer',
+                  borderRadius: '6px',
+                  fontSize: '0.875rem',
+                  transition: 'all 0.2s ease-in-out',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#E4E4E7';
+                  e.currentTarget.style.backgroundColor = '#27272A';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = '#A1A1AA';
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                <Calendar size={16} />
+                Create an event
+              </button>
+              <button
+                onClick={() => navigate('/connect')}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#A1A1AA',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.75rem 1rem',
+                  cursor: 'pointer',
+                  borderRadius: '6px',
+                  fontSize: '0.875rem',
+                  transition: 'all 0.2s ease-in-out',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#E4E4E7';
+                  e.currentTarget.style.backgroundColor = '#27272A';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = '#A1A1AA';
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                <Users size={16} />
+                Connect
+              </button>
+              <NavDropdown
+                label="Management"
+                icon={Settings}
+                items={managementItems}
+                isOpen={activeDropdown === "management"}
+                onToggle={() => setActiveDropdown(activeDropdown === "management" ? null : "management")}
+              />
+            </div>
+          )}
+
+          {/* Mobile Hamburger Menu */}
+          {isMobile && (
             <button
-              onClick={() => navigate('/create-event')}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               style={{
                 background: 'transparent',
                 border: 'none',
-                color: '#A1A1AA',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.75rem 1rem',
+                color: '#E4E4E7',
+                padding: '0.5rem',
                 cursor: 'pointer',
                 borderRadius: '6px',
-                fontSize: '0.875rem',
-                transition: 'all 0.2s ease-in-out',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#E4E4E7';
-                e.currentTarget.style.backgroundColor = '#27272A';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#A1A1AA';
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
-            >
-              <Calendar size={16} />
-              Create an event
-            </button>
-            <button
-              onClick={() => navigate('/connect')}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#A1A1AA',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.75rem 1rem',
-                cursor: 'pointer',
-                borderRadius: '6px',
-                fontSize: '0.875rem',
-                transition: 'all 0.2s ease-in-out',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#E4E4E7';
-                e.currentTarget.style.backgroundColor = '#27272A';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#A1A1AA';
-                e.currentTarget.style.backgroundColor = 'transparent';
+                justifyContent: 'center'
               }}
             >
-              <Users size={16} />
-              Connect
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
-            <NavDropdown
-              label="Management"
-              icon={Settings}
-              items={managementItems}
-              isOpen={activeDropdown === "management"}
-              onToggle={() => setActiveDropdown(activeDropdown === "management" ? null : "management")}
-            />
-          </div>
+          )}
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -464,6 +505,216 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu Overlay */}
+      {isMobile && mobileMenuOpen && (
+        <div style={{
+          position: 'fixed',
+          top: '80px', // Below the navbar
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: '#18181B',
+          zIndex: 999,
+          padding: '2rem',
+          overflowY: 'auto'
+        }}>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem',
+            maxWidth: '400px',
+            margin: '0 auto'
+          }}>
+            {/* User Profile Section */}
+            <div style={{
+              padding: '1.5rem',
+              backgroundColor: '#27272A',
+              borderRadius: '12px',
+              textAlign: 'center',
+              marginBottom: '1rem'
+            }}>
+              <div style={{
+                height: '60px',
+                width: '60px',
+                borderRadius: '50%',
+                backgroundColor: '#3F3F46',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#E4E4E7',
+                fontSize: '1.5rem',
+                fontWeight: '500',
+                margin: '0 auto 1rem auto',
+                overflow: 'hidden'
+              }}>
+                {getUserAvatar() ? (
+                  <img 
+                    src={getUserAvatar()} 
+                    alt="Profile" 
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      borderRadius: '50%'
+                    }}
+                  />
+                ) : (
+                  getUserInitials(getUserDisplayName())
+                )}
+              </div>
+              <div style={{ color: '#E4E4E7', fontSize: '1.1rem', fontWeight: '500', marginBottom: '0.5rem' }}>
+                {getUserDisplayName()}
+              </div>
+              <div style={{ color: '#A1A1AA', fontSize: '0.9rem' }}>
+                {getUserEmail()}
+              </div>
+            </div>
+
+            {/* Navigation Items */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.5rem'
+            }}>
+              {[
+                { label: 'Dashboard', icon: '🏠', to: '/dashboard' },
+                { label: 'Create Event', icon: '📅', to: '/create-event' },
+                { label: 'Connect', icon: '👥', to: '/connect' },
+                { label: 'Events', icon: '🎯', to: '/events' },
+                { label: 'Schools', icon: '🏫', to: '/schools' },
+                { label: 'Athletes', icon: '🏃', to: '/athletes' },
+                { label: 'Families', icon: '👨‍👩‍👧‍👦', to: '/families' },
+                { label: 'Alumni', icon: '🎓', to: '/alumni' }
+              ].map((item, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    navigate(item.to);
+                    setMobileMenuOpen(false);
+                  }}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid #3F3F46',
+                    color: '#E4E4E7',
+                    padding: '1rem 1.5rem',
+                    borderRadius: '12px',
+                    cursor: 'pointer',
+                    fontSize: '1rem',
+                    fontWeight: '500',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1rem',
+                    textAlign: 'left',
+                    transition: 'all 0.2s ease-in-out',
+                    width: '100%'
+                  }}
+                  onMouseDown={(e) => {
+                    e.currentTarget.style.backgroundColor = '#27272A';
+                    e.currentTarget.style.borderColor = '#60A5FA';
+                  }}
+                  onMouseUp={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.borderColor = '#3F3F46';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.borderColor = '#3F3F46';
+                  }}
+                >
+                  <span style={{ fontSize: '1.2rem', width: '24px', textAlign: 'center' }}>
+                    {item.icon}
+                  </span>
+                  <span>{item.label}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Account Actions */}
+            <div style={{
+              marginTop: '2rem',
+              paddingTop: '2rem',
+              borderTop: '1px solid #3F3F46',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.5rem'
+            }}>
+              <button
+                onClick={() => {
+                  navigate('/profile');
+                  setMobileMenuOpen(false);
+                }}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid #3F3F46',
+                  color: '#E4E4E7',
+                  padding: '1rem 1.5rem',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: '500',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  textAlign: 'left',
+                  transition: 'all 0.2s ease-in-out',
+                  width: '100%'
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.backgroundColor = '#27272A';
+                  e.currentTarget.style.borderColor = '#60A5FA';
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.borderColor = '#3F3F46';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.borderColor = '#3F3F46';
+                }}
+              >
+                <span style={{ fontSize: '1.2rem', width: '24px', textAlign: 'center' }}>⚙️</span>
+                <span>Account Settings</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  handleSignOut();
+                  setMobileMenuOpen(false);
+                }}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid #EF4444',
+                  color: '#EF4444',
+                  padding: '1rem 1.5rem',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: '500',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  textAlign: 'left',
+                  transition: 'all 0.2s ease-in-out',
+                  width: '100%'
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                <span style={{ fontSize: '1.2rem', width: '24px', textAlign: 'center' }}>🚪</span>
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
