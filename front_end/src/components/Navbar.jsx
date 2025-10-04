@@ -1,8 +1,9 @@
 
 "use client";
 import { useState } from "react";
-import { Calendar, Users, User, Bell } from "lucide-react";
+import { Calendar, Users, Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import TeamIMPACTLogo from "../assets/TeamIMPACT_Logo_Standard.webp";
 
 const eventsItems = [
   { label: "All Events", href: "#", badge: "24" },
@@ -22,14 +23,7 @@ const connectItems = [
   { label: "Followers", href: "#" },
 ];
 
-const profileItems = [
-  { label: "View Profile", href: "#" },
-  { label: "Account Settings", href: "#" },
-  { label: "Preferences", href: "#" },
-  { label: "Notifications", href: "#" },
-  { label: "Privacy", href: "#" },
-  { label: "Sign Out", href: "#", highlight: true },
-];
+
 
 // Enhanced NavDropdown component with animations
 const NavDropdown = ({ label, icon: Icon, items, isOpen, onToggle }) => {
@@ -169,16 +163,16 @@ export default function Navbar() {
         width: '100%'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <div style={{
-              height: '32px',
-              width: '32px',
-              borderRadius: '8px',
-              backgroundColor: '#60A5FA'
-            }} />
-            <span style={{ fontSize: '1.125rem', fontWeight: '600', color: '#E4E4E7' }}>
-              Dashboard
-            </span>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <img 
+              src={TeamIMPACTLogo} 
+              alt="TeamIMPACT Logo" 
+              style={{
+                height: '72px',
+                width: '72px',
+                objectFit: 'contain'
+              }} 
+            />
           </div>
 
           <div style={{ 
@@ -200,13 +194,6 @@ export default function Navbar() {
               items={connectItems}
               isOpen={activeDropdown === "connect"}
               onToggle={() => setActiveDropdown(activeDropdown === "connect" ? null : "connect")}
-            />
-            <NavDropdown
-              label="Profile"
-              icon={User}
-              items={profileItems}
-              isOpen={activeDropdown === "profile"}
-              onToggle={() => setActiveDropdown(activeDropdown === "profile" ? null : "profile")}
             />
           </div>
         </div>
@@ -236,8 +223,8 @@ export default function Navbar() {
             <div 
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
               style={{
-                height: '32px',
-                width: '32px',
+                height: '44px',
+                width: '44px',
                 borderRadius: '50%',
                 backgroundColor: profileDropdownOpen ? '#60A5FA' : '#3F3F46',
                 cursor: 'pointer',
@@ -245,7 +232,7 @@ export default function Navbar() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#E4E4E7',
-                fontSize: '0.875rem',
+                fontSize: '1.1rem',
                 fontWeight: '500',
                 transition: 'all 0.2s ease-in-out',
                 border: '2px solid transparent',
@@ -315,16 +302,16 @@ export default function Navbar() {
                     <div style={{ padding: '8px' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                         {[
-                          { label: 'View Profile', icon: '👤' },
-                          { label: 'Account Settings', icon: '⚙️' },
-                          { label: 'Preferences', icon: '🎨' },
-                          { label: 'Notifications', icon: '🔔' },
-                          { label: 'Privacy', icon: '🔒' },
-                          { label: 'Sign Out', icon: '🚪', highlight: true }
+                          { label: 'View Profile', icon: '👤', href: '#' },
+                          { label: 'Account Settings', icon: '⚙️', href: '/profile' },
+                          { label: 'Preferences', icon: '🎨', href: '#' },
+                          { label: 'Notifications', icon: '🔔', href: '#' },
+                          { label: 'Privacy', icon: '🔒', href: '#' },
+                          { label: 'Sign Out', icon: '🚪', highlight: true, href: '#' }
                         ].map((item, index) => (
                           <a
                             key={index}
-                            href="#"
+                            href={item.href}
                             style={{
                               display: 'flex',
                               alignItems: 'center',
