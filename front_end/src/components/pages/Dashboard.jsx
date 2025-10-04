@@ -96,7 +96,7 @@ const Dashboard = () => {
     <>
       <div style={{ 
         minHeight: '100vh', 
-        backgroundColor: '#ffffff',
+        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(255, 255, 255, 0.95) 40%, rgba(168, 85, 247, 0.15) 100%)',
         padding: '0'
       }}>
         <div style={{
@@ -122,7 +122,10 @@ const Dashboard = () => {
               <h1 style={{
                 fontSize: isMobile ? '32px' : '48px',
                 fontWeight: 'bold',
-                color: '#000000',
+                background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
                 margin: '0 0 16px 0',
                 lineHeight: '1.2'
               }}>
@@ -201,10 +204,12 @@ const Dashboard = () => {
             width: isMobile ? '100%' : 'auto'
           }}>
             <div style={{
-              backgroundColor: '#f8f9fa',
+              backgroundColor: '#ffffff',
               borderRadius: '12px',
               padding: isMobile ? '16px' : '24px',
-              height: 'fit-content'
+              height: 'fit-content',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+              border: '1px solid rgba(0, 0, 0, 0.05)'
             }}>
               <h2 style={{
                 fontSize: isMobile ? '20px' : '24px',
@@ -238,7 +243,18 @@ const Dashboard = () => {
                     backgroundColor: '#ffffff',
                     borderRadius: '8px',
                     padding: '16px',
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)',
+                    border: '1px solid rgba(0, 0, 0, 0.05)',
+                    transition: 'all 0.2s ease-in-out',
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)';
+                    e.currentTarget.style.transform = 'translateY(0px)';
                   }}>
                     <div style={{
                       display: 'flex',
