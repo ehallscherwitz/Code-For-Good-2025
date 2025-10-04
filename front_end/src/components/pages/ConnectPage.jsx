@@ -217,27 +217,32 @@ const ConnectPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Connect</h1>
-          <p className="text-gray-600 mb-6">
-            {userRole === 'athlete' 
-              ? 'Connect with families and find your perfect Team IMPACT match'
-              : 'Connect with student athletes and build meaningful relationships'
-            }
-          </p>
-          
-          {/* Search */}
-          <div className="max-w-md">
-            <input
-              type="text"
-              placeholder={`Search ${userRole === 'athlete' ? 'families' : 'athletes'}...`}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+    <div className="min-h-screen bg-background">
+      {/* Hero */}
+      <div className="relative bg-secondary text-secondary-foreground">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1521737711867-e3b97375f902?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3DfA%3D&auto=format&fit=crop&w=2070&q=80')] bg-cover bg-center opacity-20" />
+        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl text-balance">
+              Connect
+            </h1>
+            <p className="mt-4 text-lg text-secondary-foreground/90 max-w-2xl mx-auto text-pretty">
+              {userRole === 'athlete' 
+                ? 'Connect with families and find your perfect Team IMPACT match'
+                : 'Connect with student athletes and build meaningful relationships'
+              }
+            </p>
+            
+            {/* Search */}
+            <div className="max-w-md mx-auto mt-8">
+              <input
+                type="text"
+                placeholder={`Search ${userRole === 'athlete' ? 'families' : 'athletes'}...`}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -12,7 +12,7 @@ export default function CreateEventPage() {
               Create a New Event
             </h1>
             <p className="mt-4 text-lg text-secondary-foreground/90 max-w-2xl mx-auto text-pretty">
-              Share your upcoming game or special moment with your Team IMPACT family.
+              coming game or special moment with your Team IMPACT family.
             </p>
           </div>
         </div>

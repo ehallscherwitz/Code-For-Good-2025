@@ -208,14 +208,25 @@ const SchoolsPage = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
+        {/* Hero */}
+        <div className="relative bg-secondary text-secondary-foreground">
+          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3DfA%3D&auto=format&fit=crop&w=2070&q=80')] bg-cover bg-center opacity-20" />
+          <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+            <div className="text-center">
+              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl text-balance">
+                Schools Directory
+              </h1>
+              <p className="mt-4 text-lg text-secondary-foreground/90 max-w-2xl mx-auto text-pretty">
+                Explore schools and find the perfect match for your athletic goals
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Header */}
         <div className="bg-white shadow-sm border-b">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Schools Directory</h1>
-            <p className="text-gray-600 mb-6">
-              Explore schools and find the perfect match for your athletic goals
-            </p>
             
             {/* Search */}
             <div className="max-w-md">
