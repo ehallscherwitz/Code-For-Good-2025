@@ -161,10 +161,12 @@ const SurveyForm = () => {
 
   const glassCard = {
     width: '100%',
+    maxWidth: '900px',
+    margin: '0 auto',
     background: 'rgba(255, 255, 255, 0.08)',
     backdropFilter: 'blur(14px)',
     border: '1px solid rgba(255, 255, 255, 0.18)',
-    padding: '40px',
+    padding: '50px',
     borderRadius: '20px',
     boxShadow: '0 10px 40px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.25)',
     boxSizing: 'border-box'
@@ -395,7 +397,6 @@ const SurveyForm = () => {
     <div style={{
       minHeight: '100dvh',
       width: '100%',
-      maxWidth: '1400px',
       backgroundImage: `
         linear-gradient(135deg, ${COLORS.BLUE} 0%, ${COLORS.RED} 55%, ${COLORS.YELLOW} 120%),
         url(${formBackground})
@@ -457,9 +458,9 @@ const SurveyForm = () => {
 
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-                gap: '16px',
-                maxWidth: '820px',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                gap: '24px',
+                maxWidth: '900px',
                 margin: '0 auto'
               }}>
                 <div
