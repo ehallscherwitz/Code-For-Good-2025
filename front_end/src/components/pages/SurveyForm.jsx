@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import formBackground from '../../assets/form_background_img.jpg';
 
 const COLORS = {
@@ -12,6 +13,7 @@ const API_BASE = import.meta?.env?.VITE_API_BASE || 'http://localhost:5000';
 
 const SurveyForm = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [accountType, setAccountType] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState(null);
@@ -24,8 +26,12 @@ const SurveyForm = () => {
   };
 
   const buildPayload = (type, raw) => {
+    console.log('Building payload for type:', type);
+    console.log('User object:', user);
+    console.log('User ID:', user?.id);
+    
     if (type === 'family') {
-      return {
+      const payload = {
         parentName: raw.parentName,
         parentEmail: raw.parentEmail,
         parentPhone: normalizePhone(raw.parentPhone),
@@ -34,10 +40,14 @@ const SurveyForm = () => {
         childDateOfBirth: raw.childDateOfBirth,
         childGender: raw.childGender,
         childSport: raw.childSport,
-        childCondition: raw.childCondition || ''
+        childCondition: raw.childCondition || '',
+        userId: user?.id
       };
+      console.log('Family payload:', payload);
+      return payload;
     }
-    return {
+    
+    const payload = {
       athleteName: raw.athleteName,
       athleteEmail: raw.athleteEmail,
       athletePhone: normalizePhone(raw.athletePhone),
@@ -45,8 +55,11 @@ const SurveyForm = () => {
       athleteLocation: raw.athleteLocation,
       athleteSport: raw.athleteSport,
       athleteGraduationDate: raw.athleteGraduationDate,
-      athleteGraduationYear: yearFromDate(raw.athleteGraduationDate)
+      athleteGraduationYear: yearFromDate(raw.athleteGraduationDate),
+      userId: user?.id
     };
+    console.log('Athlete payload:', payload);
+    return payload;
   };
 
   const handleSubmit = async (e) => {

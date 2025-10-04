@@ -196,26 +196,19 @@ export function CreateEventForm() {
         </div>
       )}
 
-      {/* Submit Section - Always visible with validation */}
-      <div className="rounded-xl border p-6 bg-card text-card-foreground">
+      {userType && eventType && (
         <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
-          {userType && eventType ? (
-            <p className="text-sm text-muted-foreground">
-              <PartyPopper className="inline h-4 w-4 mr-1" />
-              Your event will be visible to your Team IMPACT network immediately
-            </p>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              Please complete all required sections above to create your event
-            </p>
-          )}
-          <div className="flex gap-3">
+          <p className="text-sm text-muted-foreground">
+            <PartyPopper className="inline h-4 w-4 mr-1" />
+            Your event will be visible to your Team IMPACT network immediately
+          </p>
+          <div className="flex gap-s">
             <button type="button" className="rounded-full border px-5 py-3">Save as Draft</button>
             <button 
               type="submit" 
-              disabled={isSubmitting || !userType || !eventType}
+              disabled={isSubmitting}
               className={`rounded-full px-5 py-3 text-white ${
-                isSubmitting || !userType || !eventType
+                isSubmitting 
                   ? 'bg-gray-400 cursor-not-allowed' 
                   : 'bg-primary text-primary-foreground hover:opacity-90'
               }`}
@@ -224,7 +217,7 @@ export function CreateEventForm() {
             </button>
           </div>
         </div>
-      </div>
+      )}
     </form>
   );
 }

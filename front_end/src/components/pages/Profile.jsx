@@ -65,32 +65,57 @@ export default function Profile() {
         avatarUrl: user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
       };
 
-      // Try to fetch from backend first
+      // Try to fetch from backend first using user_id
       let backendData = null;
       
       // Try athlete endpoint first
       try {
-        const athleteResponse = await fetch('http://localhost:5000/api/athletes');
+        console.log('Fetching athlete data for user_id:', user.id);
+        const athleteResponse = await fetch(`http://localhost:5000/api/athletes/user/${user.id}`);
+        console.log('Athlete response status:', athleteResponse.status);
+        
         if (athleteResponse.ok) {
-          const athletes = await athleteResponse.json();
-          const userAthlete = athletes.find(athlete => 
-            athlete.athlete_email === user.email || 
-            athlete.athlete_name === googleProfile.name
-          );
+          const userAthlete = await athleteResponse.json();
+          console.log('Athlete data found:', userAthlete);
+          console.log('Athlete fields:', {
+            athlete_name: userAthlete?.athlete_name,
+            athlete_email: userAthlete?.athlete_email,
+            phone_number: userAthlete?.phone_number,
+            athlete_address: userAthlete?.athlete_address,
+            graduation_year: userAthlete?.graduation_year,
+            sport: userAthlete?.sport,
+            user_id: userAthlete?.user_id
+          });
           
           if (userAthlete) {
+            // Format athlete data nicely
+            const graduationYear = userAthlete.graduation_year;
+            const currentYear = new Date().getFullYear();
+            const yearsToGraduation = graduationYear ? graduationYear - currentYear : null;
+            
+            let bioText = `College athlete passionate about making a difference in the community.`;
+            if (graduationYear) {
+              bioText += ` Graduating in ${graduationYear}${yearsToGraduation > 0 ? ` (${yearsToGraduation} year${yearsToGraduation > 1 ? 's' : ''} remaining)` : ''}.`;
+            }
+            if (userAthlete.sport) {
+              bioText += ` Playing ${userAthlete.sport}.`;
+            }
+            
             backendData = {
               role: "athlete",
               name: userAthlete.athlete_name || googleProfile.name,
               email: userAthlete.athlete_email || googleProfile.email,
               phone: userAthlete.phone_number || "",
               location: userAthlete.athlete_address || "",
-              bio: `College athlete passionate about making a difference in the community. Graduation year: ${userAthlete.graduation_year || 'TBD'}.`,
+              bio: bioText,
               avatarUrl: googleProfile.avatarUrl,
               graduationYear: userAthlete.graduation_year,
               sport: userAthlete.sport || ""
             };
+            console.log('Backend data set for athlete:', backendData);
           }
+        } else {
+          console.log('No athlete data found, status:', athleteResponse.status);
         }
       } catch (error) {
         console.log('Error fetching athlete data:', error);
@@ -99,55 +124,91 @@ export default function Profile() {
       // If not found as athlete, try family endpoint
       if (!backendData) {
         try {
-          const familyResponse = await fetch('http://localhost:5000/api/families');
+          console.log('Fetching family data for user_id:', user.id);
+          const familyResponse = await fetch(`http://localhost:5000/api/families/user/${user.id}`);
+          console.log('Family response status:', familyResponse.status);
+          
           if (familyResponse.ok) {
-            const families = await familyResponse.json();
-            const userFamily = families.find(family => 
-              family.parent_email === user.email || 
-              family.parent_name === googleProfile.name
-            );
+            const userFamily = await familyResponse.json();
+            console.log('Family data found:', userFamily);
             
             if (userFamily) {
+              // Format location properly
+              let location = "";
+              if (typeof userFamily.location === 'object') {
+                if (userFamily.location.zip_code) {
+                  location = `ZIP: ${userFamily.location.zip_code}`;
+                } else {
+                  location = `${userFamily.location.city || ''}, ${userFamily.location.state || ''}`.trim().replace(/^,\s*|,\s*$/g, '');
+                }
+              } else if (userFamily.location) {
+                location = userFamily.location;
+              }
+
+              // Format children information nicely for bio
+              let childrenInfo = "";
+              if (userFamily.children && typeof userFamily.children === 'object') {
+                const child = userFamily.children;
+                const currentYear = new Date().getFullYear();
+                const birthYear = child.birth_date ? new Date(child.birth_date).getFullYear() : null;
+                const age = birthYear ? currentYear - birthYear : 'Unknown';
+                
+                childrenInfo = `Proud parent of ${child.name || 'my child'} (${age} years old) who plays ${child.sport || 'sports'}. ${child.medical_conditions ? `Special considerations: ${child.medical_conditions}.` : ''}`;
+              }
+
               backendData = {
                 role: "family",
                 name: userFamily.parent_name || googleProfile.name,
                 email: userFamily.parent_email || googleProfile.email,
                 phone: userFamily.parent_phone_number || "",
-                location: typeof userFamily.location === 'object' ? 
-                  `${userFamily.location.city || ''}, ${userFamily.location.state || ''}`.trim().replace(/^,\s*|,\s*$/g, '') : 
-                  userFamily.location || "",
-                bio: `Family member passionate about supporting young athletes. ${userFamily.children ? `Children: ${JSON.stringify(userFamily.children)}` : ''}`,
+                location: location,
+                bio: `Family member passionate about supporting young athletes. ${childrenInfo}`,
                 avatarUrl: googleProfile.avatarUrl,
                 children: userFamily.children || {}
               };
+              console.log('Backend data set for family:', backendData);
             }
+          } else {
+            console.log('No family data found, status:', familyResponse.status);
           }
         } catch (error) {
           console.log('Error fetching family data:', error);
         }
       }
 
+      console.log('Final backend data:', backendData);
+
       // Merge with local storage data
       try {
         const raw = localStorage.getItem(STORAGE_INFO);
         const savedData = raw ? JSON.parse(raw) : {};
         
-        // Priority: savedData > backendData > googleProfile > DEFAULT_PROFILE
-        setData({ 
+        console.log('Local storage data:', savedData);
+        console.log('Backend data:', backendData);
+        console.log('Google profile:', googleProfile);
+        
+        // Priority: backendData > savedData > googleProfile > DEFAULT_PROFILE
+        const mergedData = { 
           ...DEFAULT_PROFILE, 
           ...googleProfile, 
-          ...(backendData || {}),
           ...savedData,
+          ...(backendData || {}), // Backend data should override localStorage
           // Always preserve user-uploaded avatar if exists
           avatarUrl: savedData.avatarUrl || (backendData?.avatarUrl) || googleProfile.avatarUrl
-        });
+        };
+        
+        console.log('Final merged data:', mergedData);
+        setData(mergedData);
       } catch (error) {
+        console.log('Error with localStorage, using backend data only');
         // If localStorage fails, use backend or google data
-        setData({ 
+        const fallbackData = { 
           ...DEFAULT_PROFILE, 
           ...googleProfile, 
           ...(backendData || {})
-        });
+        };
+        console.log('Fallback data:', fallbackData);
+        setData(fallbackData);
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -718,18 +779,92 @@ export default function Profile() {
                   </div>
                 </>
               )}
+              {/* Family Children Information */}
               {(data.role === "family" || draft.role === "family") && data.children && Object.keys(data.children).length > 0 && (
                 <div style={{ gridColumn: '1 / -1' }}>
                   <label style={{ ...s.label, display: 'block', marginBottom: '8px' }}>Children Information</label>
                   <div style={{
-                    padding: '12px',
+                    padding: '16px',
                     backgroundColor: '#f9fafb',
                     borderRadius: '8px',
                     border: '1px solid #e5e7eb'
                   }}>
-                    <pre style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>
-                      {JSON.stringify(data.children, null, 2)}
-                    </pre>
+                    {(() => {
+                      const child = data.children;
+                      if (child && typeof child === 'object') {
+                        const currentYear = new Date().getFullYear();
+                        const birthYear = child.birth_date ? new Date(child.birth_date).getFullYear() : null;
+                        const age = birthYear ? currentYear - birthYear : 'Unknown';
+                        
+                        return (
+                          <div style={{ fontSize: '14px', color: '#374151', lineHeight: '1.6' }}>
+                            <div style={{ marginBottom: '8px' }}>
+                              <strong>Name:</strong> {child.name || 'Not specified'}
+                            </div>
+                            <div style={{ marginBottom: '8px' }}>
+                              <strong>Age:</strong> {age} years old
+                            </div>
+                            <div style={{ marginBottom: '8px' }}>
+                              <strong>Sport:</strong> {child.sport || 'Not specified'}
+                            </div>
+                            <div style={{ marginBottom: '8px' }}>
+                              <strong>Gender:</strong> {child.gender || 'Not specified'}
+                            </div>
+                            {child.medical_conditions && (
+                              <div style={{ marginBottom: '8px' }}>
+                                <strong>Special Needs:</strong> {child.medical_conditions}
+                              </div>
+                            )}
+                            {child.birth_date && (
+                              <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                                <strong>Birth Date:</strong> {new Date(child.birth_date).toLocaleDateString()}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      }
+                      return <div>No children information available</div>;
+                    })()}
+                  </div>
+                </div>
+              )}
+
+              {/* Athlete Information */}
+              {(data.role === "athlete" || draft.role === "athlete") && (data.sport || data.graduationYear) && (
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ ...s.label, display: 'block', marginBottom: '8px' }}>Athlete Information</label>
+                  <div style={{
+                    padding: '16px',
+                    backgroundColor: '#f0f9ff',
+                    borderRadius: '8px',
+                    border: '1px solid #e0f2fe'
+                  }}>
+                    <div style={{ fontSize: '14px', color: '#374151', lineHeight: '1.6' }}>
+                      {data.sport && (
+                        <div style={{ marginBottom: '8px' }}>
+                          <strong>Sport:</strong> {data.sport}
+                        </div>
+                      )}
+                      {data.graduationYear && (
+                        <div style={{ marginBottom: '8px' }}>
+                          <strong>Graduation Year:</strong> {data.graduationYear}
+                          {(() => {
+                            const currentYear = new Date().getFullYear();
+                            const yearsToGraduation = data.graduationYear - currentYear;
+                            if (yearsToGraduation > 0) {
+                              return ` (${yearsToGraduation} year${yearsToGraduation > 1 ? 's' : ''} remaining)`;
+                            } else if (yearsToGraduation === 0) {
+                              return ' (Graduating this year!)';
+                            } else {
+                              return ' (Graduated)';
+                            }
+                          })()}
+                        </div>
+                      )}
+                      <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '8px' }}>
+                        <strong>Status:</strong> Active Team IMPACT athlete
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
