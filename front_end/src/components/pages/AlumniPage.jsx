@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Users, GraduationCap, Mail, Phone, MapPin, Plus, AlertCircle } from 'lucide-react';
+import { User, Users, GraduationCap, Mail, Phone, MapPin, Plus, AlertCircle, MessageCircle } from 'lucide-react';
 
 const AlumniPage = () => {
   const [alumni, setAlumni] = useState([]);
@@ -136,7 +136,7 @@ const AlumniPage = () => {
   );
 
   const AlumniCard = ({ member }) => (
-    <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+    <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow relative">
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
@@ -177,6 +177,18 @@ const AlumniPage = () => {
           <Phone className="w-4 h-4" />
           <span className="text-sm">{member.alumni_phone_number}</span>
         </div>
+      </div>
+
+      {/* Message button positioned at bottom right */}
+      <div className="absolute bottom-4 right-4">
+        <button
+          onClick={() => alert('Message functionality would be implemented here')}
+          className="px-3 py-1 bg-green-100 text-green-700 rounded-md text-sm hover:bg-green-200 flex items-center gap-1 shadow-sm"
+          title="Send Message"
+        >
+          <MessageCircle className="w-4 h-4" />
+          Message
+        </button>
       </div>
     </div>
   );
