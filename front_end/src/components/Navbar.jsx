@@ -7,11 +7,11 @@ import { useAuth } from "../contexts/AuthContext";
 import TeamIMPACTLogo from "../assets/TeamIMPACT_Logo_Standard.webp";
 
 const eventsItems = [
-  { label: "All Events", href: "#", badge: "24" },
-  { label: "Upcoming", href: "#", badge: "8" },
-  { label: "Past Events", href: "#" },
-  { label: "Drafts", href: "#", badge: "3" },
-  { label: "Archived", href: "#" },
+  { label: "All Events", to: "/events", badge: "24" },
+  { label: "Upcoming", to: "/events", badge: "8" },
+  { label: "Past Events", to: "/events" },
+  { label: "Drafts", to: "/events", badge: "3" },
+  { label: "Archived", to: "/events" },
   { label: "Create New Event", to: "/create-event", highlight: true },
 ];
 
