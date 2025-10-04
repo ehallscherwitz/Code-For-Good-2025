@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import Layout from './components/Layout';
 import MainPage from './components/MainPage';
 import LoginPage from './components/pages/LoginPage';
 import Profile from './components/pages/Profile';
@@ -22,18 +23,66 @@ function App() {
       <Router>
         <div className="App">
           <Routes>
-            <Route path="/" element={<MainPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/survey" element={<SurveyForm />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/create-event" element={<CreateEventPage />} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
-            <Route path="/schools" element={<SchoolsPage />} />
-            <Route path="/athletes" element={<AthletesPage />} />
-            <Route path="/families" element={<FamiliesPage />} />
-            <Route path="/alumni" element={<AlumniPage />} />
-            <Route path="/events" element={<EventsPage />} />
+            <Route path="/login" element={
+              <Layout showNavbar={false} fullscreen={true}>
+                <LoginPage />
+              </Layout>
+            } />
+            <Route path="/auth/callback" element={
+              <Layout showNavbar={false} fullscreen={true}>
+                <AuthCallback />
+              </Layout>
+            } />
+            <Route path="/" element={
+              <Layout>
+                <MainPage />
+              </Layout>
+            } />
+            <Route path="/profile" element={
+              <Layout>
+                <Profile />
+              </Layout>
+            } />
+            <Route path="/survey" element={
+              <Layout>
+                <SurveyForm />
+              </Layout>
+            } />
+            <Route path="/dashboard" element={
+              <Layout>
+                <Dashboard />
+              </Layout>
+            } />
+            <Route path="/create-event" element={
+              <Layout>
+                <CreateEventPage />
+              </Layout>
+            } />
+            <Route path="/schools" element={
+              <Layout>
+                <SchoolsPage />
+              </Layout>
+            } />
+            <Route path="/athletes" element={
+              <Layout>
+                <AthletesPage />
+              </Layout>
+            } />
+            <Route path="/families" element={
+              <Layout>
+                <FamiliesPage />
+              </Layout>
+            } />
+            <Route path="/alumni" element={
+              <Layout>
+                <AlumniPage />
+              </Layout>
+            } />
+            <Route path="/events" element={
+              <Layout>
+                <EventsPage />
+              </Layout>
+            } />
           </Routes>
         </div>
       </Router>

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from '../Navbar';
 import { User, Users, GraduationCap, Mail, Phone, MapPin, Plus } from 'lucide-react';
 
 const AthletesPage = () => {
@@ -301,7 +300,6 @@ const AthletesPage = () => {
 
   return (
     <>
-      <Navbar />
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <div className="bg-white shadow-sm border-b">

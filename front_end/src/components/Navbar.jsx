@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Calendar, Users, Bell, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import TeamIMPACTLogo from "../assets/TeamIMPACT_Logo_Standard.webp";
 
 const eventsItems = [
@@ -143,8 +144,43 @@ const NavDropdown = ({ label, icon: Icon, items, isOpen, onToggle }) => {
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      setProfileDropdownOpen(false);
+      navigate('/login');
+    } catch (error) {
+      console.error('Sign out failed:', error);
+    }
+  };
+
+  // Get user initials for fallback avatar
+  const getUserInitials = (name) => {
+    if (!name) return 'U';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
+
+  // Get user display name
+  const getUserDisplayName = () => {
+    if (!user) return 'Guest';
+    return user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'User';
+  };
+
+  // Get user email
+  const getUserEmail = () => {
+    if (!user) return '';
+    return user.email || '';
+  };
+
+  // Get user profile picture
+  const getUserAvatar = () => {
+    if (!user) return null;
+    return user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
+  };
 
   return (
     <nav style={{
@@ -255,7 +291,8 @@ export default function Navbar() {
                 border: '2px solid transparent',
                 boxSizing: 'border-box',
                 outline: profileDropdownOpen ? '2px solid #60A5FA' : 'none',
-                outlineOffset: '2px'
+                outlineOffset: '2px',
+                overflow: 'hidden'
               }}
               onMouseEnter={(e) => {
                 if (!profileDropdownOpen) {
@@ -268,7 +305,20 @@ export default function Navbar() {
                 }
               }}
             >
-              JD
+              {getUserAvatar() ? (
+                <img 
+                  src={getUserAvatar()} 
+                  alt="Profile" 
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    borderRadius: '50%'
+                  }}
+                />
+              ) : (
+                getUserInitials(getUserDisplayName())
+              )}
             </div>
 
             {profileDropdownOpen && (
@@ -308,10 +358,10 @@ export default function Navbar() {
                       textAlign: 'center'
                     }}>
                       <div style={{ color: '#E4E4E7', fontSize: '0.875rem', fontWeight: '500', marginBottom: '4px' }}>
-                        John Doe
+                        {getUserDisplayName()}
                       </div>
                       <div style={{ color: '#A1A1AA', fontSize: '0.75rem' }}>
-                        john.doe@example.com
+                        {getUserEmail()}
                       </div>
                     </div>
 
@@ -324,7 +374,7 @@ export default function Navbar() {
                           { label: 'Preferences', icon: '🎨', href: '#' },
                           { label: 'Notifications', icon: '🔔', href: '#' },
                           { label: 'Privacy', icon: '🔒', href: '#' },
-                          { label: 'Sign Out', icon: '🚪', highlight: true, href: '#' }
+                          { label: 'Sign Out', icon: '🚪', highlight: true, action: handleSignOut }
                         ].map((item, index) => (
                           <a
                             key={index}
@@ -342,7 +392,10 @@ export default function Navbar() {
                               transition: 'background-color 0.2s ease-in-out'
                             }}
                             onClick={(e) => {
-                              if (item.to) {
+                              if (item.action) {
+                                e.preventDefault();
+                                item.action();
+                              } else if (item.to) {
                                 e.preventDefault();
                                 setProfileDropdownOpen(false);
                                 navigate(item.to);

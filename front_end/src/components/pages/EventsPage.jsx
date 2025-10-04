@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from '../Navbar';
 import { Calendar, MapPin, Users, Clock, Eye, Edit, Trash2, Plus } from 'lucide-react';
 
 const EventsPage = () => {
@@ -269,7 +268,6 @@ const EventsPage = () => {
 
   return (
     <>
-      <Navbar />
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <div className="bg-white shadow-sm border-b">

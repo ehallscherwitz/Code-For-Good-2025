@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Navbar from '../Navbar';
 import dashboardCarousel1 from '../../assets/dashboard_carhousel_1.webp';
 import dashboardCarousel2 from '../../assets/dashboard_carhousel_2.png';
 import dashboardCarousel3 from '../../assets/dashboard_carhousel_3.png';
@@ -74,7 +73,6 @@ const Dashboard = () => {
 
   return (
     <>
-      <Navbar />
       <div style={{ 
         minHeight: '100vh', 
         backgroundColor: '#ffffff',

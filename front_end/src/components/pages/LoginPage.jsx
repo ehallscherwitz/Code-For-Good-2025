@@ -12,6 +12,7 @@ const LoginPage = () => {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   // List your public image paths here (rooted at /)
   const slides = useMemo(
@@ -67,12 +68,16 @@ const LoginPage = () => {
   const handleGoogleSignIn = async () => {
     try {
       setIsGoogleLoading(true);
+      setError('');
       await signInWithGoogle();
-      // Redirect to home page after successful login
-      navigate("/");
+      // Show success message and add 1 second delay before redirecting
+      setSuccessMessage('Sign-in successful! Redirecting...');
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
     } catch (error) {
       console.error('Sign-in failed:', error);
-      alert('Sign-in failed. Please try again.');
+      setError('Sign-in failed. Please try again.');
     } finally {
       setIsGoogleLoading(false);
     }
@@ -192,7 +197,6 @@ const LoginPage = () => {
           textAlign: "center",
           maxWidth: "350px",
           width: "90%",
-          transform: "translate(-180px, -100px)",
           zIndex: 1,
           backdropFilter: "saturate(1.1) blur(2px)",
         }}
@@ -212,6 +216,20 @@ const LoginPage = () => {
             fontSize: "14px"
           }}>
             {error}
+          </div>
+        )}
+
+        {successMessage && (
+          <div style={{
+            marginBottom: "15px",
+            padding: "10px",
+            backgroundColor: "#e6ffe6",
+            border: "1px solid #ccffcc",
+            borderRadius: "6px",
+            color: "#2d6303",
+            fontSize: "14px"
+          }}>
+            {successMessage}
           </div>
         )}
 
