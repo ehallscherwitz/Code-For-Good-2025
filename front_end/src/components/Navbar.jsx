@@ -221,13 +221,12 @@ export default function Navbar() {
         minHeight: '80px',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: isMobile ? '1rem 1rem' : '1rem 2rem',
+        padding: isMobile ? '1rem 0.5rem' : '1rem 2rem',
         width: '100%',
-        maxWidth: 'none',
         margin: 0,
         boxSizing: 'border-box'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '1rem' : '2rem' }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <img 
               src={TeamIMPACTLogo} 
@@ -270,8 +269,10 @@ export default function Navbar() {
               />
             </div>
           )}
+        </div>
 
-          {/* Mobile Hamburger Menu */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {/* Mobile Hamburger Menu - moved to right side */}
           {isMobile && (
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -290,176 +291,179 @@ export default function Navbar() {
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           )}
-        </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <button style={{
-            position: 'relative',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: '0.5rem',
-            borderRadius: '6px'
-          }}>
-            <Bell size={20} style={{ color: '#E4E4E7' }} />
-            <span style={{
-              position: 'absolute',
-              top: '2px',
-              right: '2px',
-              height: '8px',
-              width: '8px',
-              borderRadius: '50%',
-              backgroundColor: '#60A5FA'
-            }} />
-          </button>
-
-          <div style={{ position: 'relative' }}>
-            <div 
-              onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-              style={{
-                height: '44px',
-                width: '44px',
-                borderRadius: '50%',
-                backgroundColor: profileDropdownOpen ? '#60A5FA' : '#3F3F46',
+          {/* Desktop-only notifications and profile */}
+          {!isMobile && (
+            <>
+              <button style={{
+                position: 'relative',
+                background: 'none',
+                border: 'none',
                 cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#E4E4E7',
-                fontSize: '1.1rem',
-                fontWeight: '500',
-                transition: 'all 0.2s ease-in-out',
-                border: '2px solid transparent',
-                boxSizing: 'border-box',
-                outline: profileDropdownOpen ? '2px solid #60A5FA' : 'none',
-                outlineOffset: '2px',
-                overflow: 'hidden'
-              }}
-              onMouseEnter={(e) => {
-                if (!profileDropdownOpen) {
-                  e.target.style.backgroundColor = '#52525B';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!profileDropdownOpen) {
-                  e.target.style.backgroundColor = '#3F3F46';
-                }
-              }}
-            >
-              {getUserAvatar() ? (
-                <img 
-                  src={getUserAvatar()} 
-                  alt="Profile" 
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    borderRadius: '50%'
-                  }}
-                />
-              ) : (
-                getUserInitials(getUserDisplayName())
-              )}
-            </div>
-
-            {profileDropdownOpen && (
-              <>
-                {/* Backdrop */}
-                <div 
-                  style={{
-                    position: 'fixed',
-                    inset: 0,
-                    zIndex: 40
-                  }}
-                  onClick={() => setProfileDropdownOpen(false)}
-                />
-                
-                {/* Profile Dropdown */}
-                <div style={{
+                padding: '0.5rem',
+                borderRadius: '6px'
+              }}>
+                <Bell size={20} style={{ color: '#E4E4E7' }} />
+                <span style={{
                   position: 'absolute',
-                  top: 'calc(100% + 8px)',
-                  right: 0,
-                  width: '200px',
-                  zIndex: 50,
-                  animation: 'dropdownSlideIn 0.2s ease-out',
-                  transformOrigin: 'top right'
-                }}>
-                  <div style={{
-                    borderRadius: '8px',
-                    border: '1px solid #3F3F46',
-                    backgroundColor: '#18181B',
-                    boxShadow: '0 10px 38px -10px rgba(0, 0, 0, 0.35), 0 10px 20px -15px rgba(0, 0, 0, 0.2)',
-                    overflow: 'hidden'
-                  }}>
-                    {/* User Info Section */}
-                    <div style={{
-                      padding: '16px',
-                      borderBottom: '1px solid #3F3F46',
-                      backgroundColor: '#1A1A1A',
-                      textAlign: 'center'
-                    }}>
-                      <div style={{ color: '#E4E4E7', fontSize: '0.875rem', fontWeight: '500', marginBottom: '4px' }}>
-                        {getUserDisplayName()}
-                      </div>
-                      <div style={{ color: '#A1A1AA', fontSize: '0.75rem' }}>
-                        {getUserEmail()}
-                      </div>
-                    </div>
+                  top: '2px',
+                  right: '2px',
+                  height: '8px',
+                  width: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: '#60A5FA'
+                }} />
+              </button>
 
-                    {/* Menu Items */}
-                    <div style={{ padding: '8px' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                        {[
-                          { label: 'View Profile', icon: '👤', to: '/profile' },
+              <div style={{ position: 'relative' }}>
+                <div 
+                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                  style={{
+                    height: '44px',
+                    width: '44px',
+                    borderRadius: '50%',
+                    backgroundColor: profileDropdownOpen ? '#60A5FA' : '#3F3F46',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#E4E4E7',
+                    fontSize: '1.1rem',
+                    fontWeight: '500',
+                    transition: 'all 0.2s ease-in-out',
+                    border: '2px solid transparent',
+                    boxSizing: 'border-box',
+                    outline: profileDropdownOpen ? '2px solid #60A5FA' : 'none',
+                    outlineOffset: '2px',
+                    overflow: 'hidden'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!profileDropdownOpen) {
+                      e.target.style.backgroundColor = '#52525B';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!profileDropdownOpen) {
+                      e.target.style.backgroundColor = '#3F3F46';
+                    }
+                  }}
+                >
+                  {getUserAvatar() ? (
+                    <img 
+                      src={getUserAvatar()} 
+                      alt="Profile" 
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        borderRadius: '50%'
+                      }}
+                    />
+                  ) : (
+                    getUserInitials(getUserDisplayName())
+                  )}
+                </div>
+
+                {profileDropdownOpen && (
+                  <>
+                    {/* Backdrop */}
+                    <div 
+                      style={{
+                        position: 'fixed',
+                        inset: 0,
+                        zIndex: 40
+                      }}
+                      onClick={() => setProfileDropdownOpen(false)}
+                    />
+                    
+                    {/* Profile Dropdown */}
+                    <div style={{
+                      position: 'absolute',
+                      top: 'calc(100% + 8px)',
+                      right: 0,
+                      width: '200px',
+                      zIndex: 50,
+                      animation: 'dropdownSlideIn 0.2s ease-out',
+                      transformOrigin: 'top right'
+                    }}>
+                      <div style={{
+                        borderRadius: '8px',
+                        border: '1px solid #3F3F46',
+                        backgroundColor: '#18181B',
+                        boxShadow: '0 10px 38px -10px rgba(0, 0, 0, 0.35), 0 10px 20px -15px rgba(0, 0, 0, 0.2)',
+                        overflow: 'hidden'
+                      }}>
+                        {/* User Info Section */}
+                        <div style={{
+                          padding: '16px',
+                          borderBottom: '1px solid #3F3F46',
+                          backgroundColor: '#1A1A1A',
+                          textAlign: 'center'
+                        }}>
+                          <div style={{ color: '#E4E4E7', fontSize: '0.875rem', fontWeight: '500', marginBottom: '4px' }}>
+                            {getUserDisplayName()}
+                          </div>
+                          <div style={{ color: '#A1A1AA', fontSize: '0.75rem' }}>
+                            {getUserEmail()}
+                          </div>
+                        </div>
+
+                        {/* Menu Items */}
+                        <div style={{ padding: '8px' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                            {[
+                              { label: 'View Profile', icon: '👤', to: '/profile' },
                           { label: 'Account Settings', icon: '⚙️', to: '/profile' },
-                          { label: 'Preferences', icon: '🎨', href: '#' },
+                              { label: 'Preferences', icon: '🎨', href: '#' },
                           { label: 'Notifications', icon: '🔔', href: '#' },
                           { label: 'Privacy', icon: '🔒', href: '#' },
                           { label: 'Sign Out', icon: '🚪', highlight: true, action: handleSignOut }
-                        ].map((item, index) => (
-                          <a
-                            key={index}
-                            href={item.href || item.to || '#'}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '12px',
-                              padding: '8px 12px',
-                              borderRadius: '6px',
-                              color: item.highlight ? '#EF4444' : '#E4E4E7',
-                              textDecoration: 'none',
-                              fontSize: '0.875rem',
-                              fontWeight: item.highlight ? '500' : '400',
-                              transition: 'background-color 0.2s ease-in-out'
-                            }}
-                            onClick={(e) => {
-                              if (item.action) {
-                                e.preventDefault();
-                                item.action();
-                              } else if (item.to) {
-                                e.preventDefault();
-                                setProfileDropdownOpen(false);
-                                navigate(item.to);
-                              }
-                            }}
-                            onMouseEnter={(e) => {
-                              e.target.style.backgroundColor = item.highlight ? 'rgba(239, 68, 68, 0.1)' : '#27272A';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.backgroundColor = 'transparent';
-                            }}
-                          >
-                            <span style={{ width: '16px', textAlign: 'center' }}>{item.icon}</span>
-                            <span>{item.label}</span>
-                          </a>
-                        ))}
+                            ].map((item, index) => (
+                              <a
+                                key={index}
+                                href={item.href || item.to || '#'}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '12px',
+                                  padding: '8px 12px',
+                                  borderRadius: '6px',
+                                  color: item.highlight ? '#EF4444' : '#E4E4E7',
+                                  textDecoration: 'none',
+                                  fontSize: '0.875rem',
+                                  fontWeight: item.highlight ? '500' : '400',
+                                  transition: 'background-color 0.2s ease-in-out'
+                                }}
+                                onClick={(e) => {
+                                  if (item.action) {
+                                    e.preventDefault();
+                                    item.action();
+                                  } else if (item.to) {
+                                    e.preventDefault();
+                                    setProfileDropdownOpen(false);
+                                    navigate(item.to);
+                                  }
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.target.style.backgroundColor = item.highlight ? 'rgba(239, 68, 68, 0.1)' : '#27272A';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.target.style.backgroundColor = 'transparent';
+                                }}
+                              >
+                                <span style={{ width: '16px', textAlign: 'center' }}>{item.icon}</span>
+                                <span>{item.label}</span>
+                              </a>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
+                  </>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
 
