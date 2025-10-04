@@ -9,6 +9,7 @@ const teamsRouter = require('./routes/teams');
 const athletesRouter = require('./routes/athletes');
 const alumniRouter = require('./routes/alumni');
 const familiesRouter = require('./routes/families');
+const authRouter = require('./routes/auth');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -35,6 +36,7 @@ app.get('/', (req, res) => {
     version: '1.0.0',
     endpoints: {
       health: '/api/health',
+      auth: '/api/auth',
       schools: '/api/schools',
       teams: '/api/teams',
       athletes: '/api/athletes',
@@ -55,6 +57,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Register routes
+app.use('/api/auth', authRouter);
 app.use('/api/schools', schoolsRouter);
 app.use('/api/teams', teamsRouter);
 app.use('/api/athletes', athletesRouter);
@@ -106,6 +109,11 @@ app.use('*', (req, res) => {
       'GET /',
       'GET /api/health',
       'GET /api/test-supabase',
+      'POST /api/auth/google',
+      'GET /api/auth/google/url',
+      'POST /api/auth/callback',
+      'GET /api/auth/user',
+      'POST /api/auth/logout',
       'GET /api/schools',
       'GET /api/schools/:id',
       'DELETE /api/schools/:id',
