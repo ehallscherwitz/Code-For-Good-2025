@@ -10,6 +10,8 @@ const athletesRouter = require('./routes/athletes');
 const alumniRouter = require('./routes/alumni');
 const familiesRouter = require('./routes/families');
 const authRouter = require('./routes/auth');
+const surveysRouter = require('./routes/surveys');
+const eventsRouter = require('./routes/events');
 
 const recommendSchools = require('./routes/recommendations');
 
@@ -68,6 +70,8 @@ app.use('/api/teams', teamsRouter);
 app.use('/api/athletes', athletesRouter);
 app.use('/api/alumni', alumniRouter);
 app.use('/api/families', familiesRouter);
+app.use('/api/surveys', surveysRouter);
+app.use('/api/events', eventsRouter);
 
 
 app.get('/api/test-supabase', async (req, res) => {
@@ -141,7 +145,17 @@ app.use('*', (req, res) => {
       'GET /api/families',
       'GET /api/families/:parent_id',
       'POST /api/families',
-      'POST /api/recommendations/family/:family_id'
+      'POST /api/recommendations/family/:family_id',
+      'POST /api/surveys/family',
+      'POST /api/surveys/athlete',
+      'POST /api/families',
+      'GET /api/events',
+      'GET /api/events/family/:family_id',
+      'GET /api/events/athlete/:athlete_id',
+      'GET /api/events/:event_id',
+      'POST /api/events',
+      'PUT /api/events/:event_id',
+      'DELETE /api/events/:event_id'
     ]
   });
 });
