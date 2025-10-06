@@ -83,7 +83,7 @@ router.post("/family/:family_id", async (req, res) => {
     
     console.log(`Candidates prepared for AI ranking:`, candidates.length, 'schools');
 
-    // 3) Deterministic Gemini call for the TOP 3 school_ids
+    
     const instruction = `
 You are a deterministic ranking function.
 
@@ -121,7 +121,6 @@ Return STRICT JSON ONLY:
 
     console.log(`Calling Gemini AI with ${candidates.length} schools...`);
     
-    // NOTE: Node 18+ has global fetch. If not, import('node-fetch')
     const resp = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

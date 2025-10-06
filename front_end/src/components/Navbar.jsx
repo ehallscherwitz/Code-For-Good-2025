@@ -1,7 +1,7 @@
 
 "use client";
 import { useState, useEffect } from "react";
-import { Calendar, Users, Bell, Settings, Menu, X, Camera } from "lucide-react";
+import { Calendar, Users, Bell, Settings, Menu, X, Camera, UserPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import TeamIMPACTLogo from "../assets/TeamIMPACT_Logo_Standard.webp";
@@ -336,6 +336,38 @@ export default function Navbar() {
               </button>
             </div>
           )}
+
+          {/* Match Button */}
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <button
+              onClick={() => navigate('/match')}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#A1A1AA',
+                cursor: 'pointer',
+                padding: '8px 12px',
+                borderRadius: '6px',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                transition: 'all 0.2s ease-in-out',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#E4E4E7';
+                e.currentTarget.style.backgroundColor = '#27272A';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#A1A1AA';
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              <UserPlus size={16} />
+              Match
+            </button>
+          </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -606,6 +638,7 @@ export default function Navbar() {
                 { label: 'Create Event', icon: '📅', to: '/create-event' },
                 { label: 'Connect', icon: '👥', to: '/connect' },
                 { label: 'Scrapbook', icon: '📸', to: '/scrapbook' },
+                { label: 'Match', icon: '👥', to: '/match' },
                 { label: 'Events', icon: '🎯', to: '/events' },
                 { label: 'Schools', icon: '🏫', to: '/schools' },
                 { label: 'Athletes', icon: '🏃', to: '/athletes' },

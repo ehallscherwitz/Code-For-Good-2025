@@ -16,6 +16,7 @@ import AlumniPage from './components/pages/AlumniPage';
 import EventsPage from './components/pages/EventsPage';
 import ConnectPage from './components/pages/ConnectPage';
 import ScrapbookPage from './components/pages/ScrapbookPage';
+import MatchPage from './components/pages/MatchPage';
 
 function App() {
   return (
@@ -91,6 +92,11 @@ function App() {
             <Route path="/scrapbook" element={
               <Layout>
                 <ScrapbookPage />
+              </Layout>
+            } />
+            <Route path="/match" element={
+              <Layout>
+                <MatchPage />
               </Layout>
             } />
           </Routes>

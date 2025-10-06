@@ -143,13 +143,13 @@ const SurveyForm = () => {
         setSubmitMessage({ text: 'Survey submitted successfully! Thank you for your time.', ok: true });
         if (typeof formEl.reset === 'function') formEl.reset();
         setAccountType('');
-        setTimeout(() => navigate('/dashboard'), 1200);
+        setTimeout(() => navigate('/match'), 1200);
       } else {
         // Backend not available, but local storage was saved
         setSubmitMessage({ text: 'Survey saved locally! Thank you for your time.', ok: true });
         if (typeof formEl.reset === 'function') formEl.reset();
         setAccountType('');
-        setTimeout(() => navigate('/dashboard'), 1200);
+        setTimeout(() => navigate('/match'), 1200);
       }
     } catch (error) {
       console.error('Survey submission error:', error);

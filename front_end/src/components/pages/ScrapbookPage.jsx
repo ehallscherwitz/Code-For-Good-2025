@@ -9,7 +9,8 @@ import {
   Sparkles,
   Image as ImageIcon,
   RefreshCw,
-  Plus
+  Plus,
+  Trash2
 } from 'lucide-react';
 
 // Default placeholder image for when scrapbook images fail to load
@@ -44,6 +45,26 @@ const ScrapbookPage = () => {
       console.error('Error fetching images:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteImage = async (imageId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/scrapbook/${imageId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete image');
+      }
+
+      // Remove the image from local state
+      setImages(images.filter(img => img.id !== imageId));
+      setUploadMessage('Image deleted successfully! 🗑️');
+      setTimeout(() => setUploadMessage(''), 2000);
+    } catch (error) {
+      console.error('Error deleting image:', error);
+      setUploadMessage('Failed to delete image. Please try again.');
     }
   };
 
@@ -139,6 +160,15 @@ const ScrapbookPage = () => {
             />
             <div className="absolute top-2 right-2 bg-white/80 rounded-full p-1">
               <Heart className="w-4 h-4 text-red-500" />
+            </div>
+            <div className="absolute top-2 left-2 bg-white/80 rounded-full p-1">
+              <button
+                onClick={() => handleDeleteImage(image.id)}
+                className="text-red-500 hover:text-red-700 transition-colors"
+                title="Delete image"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
             </div>
           </div>
           <div className="mt-3 text-center">
