@@ -22,7 +22,8 @@ router.post('/family', async (req, res) => {
       childDateOfBirth,
       childGender,
       childSport,
-      childCondition
+      childCondition,
+      userId
     } = req.body;
 
     const { data: family, error: familyError } = await req.supabase
@@ -38,9 +39,10 @@ router.post('/family', async (req, res) => {
           gender: norm.trim(childGender),
           sport: norm.trim(childSport),
           medical_conditions: childCondition || null
-        }
+        },
+        user_id: userId
       }])
-      .select('parent_id, parent_name, location, children')
+      .select('parent_id, parent_name, location, children, user_id')
       .single();
 
     if (familyError) {
@@ -73,7 +75,8 @@ router.post('/athlete', async (req, res) => {
       athleteLocation,
       athleteSport,
       athleteGraduationDate,
-      athleteGraduationYear
+      athleteGraduationYear,
+      userId
     } = req.body;
 
     if (!athleteName || !athleteEmail || !athletePhone || !athleteSchool || !athleteSport) {
@@ -148,9 +151,10 @@ router.post('/athlete', async (req, res) => {
         phone_number: norm.phone(athletePhone),
         athlete_address: norm.trim(athleteLocation) || '',
         graduation_year: gradYear,
-        team_id
+        team_id,
+        user_id: userId
       }])
-      .select('athlete_id, team_id')
+      .select('athlete_id, team_id, user_id')
       .single();
 
     if (athleteError) {

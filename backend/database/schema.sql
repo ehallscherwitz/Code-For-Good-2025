@@ -33,6 +33,7 @@ CREATE TABLE ATHLETE (
     athlete_address TEXT,
     graduation_year INT,
     sport TEXT,
+    user_id TEXT, -- Supabase user ID
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -44,6 +45,7 @@ CREATE TABLE FAMILY (
     location JSONB NOT NULL DEFAULT '{}'::jsonb,
     children JSONB NOT NULL DEFAULT '{}'::jsonb,
     team_id UUID REFERENCES TEAM(team_id) ON DELETE CASCADE,
+    user_id TEXT, -- Supabase user ID
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -57,7 +59,7 @@ CREATE TABLE ALUMNI (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE EVENT (
+CREATE TABLE event (
     event_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     event_name TEXT NOT NULL,
     event_date DATE NOT NULL,
@@ -68,6 +70,7 @@ CREATE TABLE EVENT (
     athlete_id UUID REFERENCES ATHLETE(athlete_id) ON DELETE CASCADE,
     team_id UUID REFERENCES TEAM(team_id) ON DELETE CASCADE,
     event_status TEXT NOT NULL,
+    event_type TEXT,
     event_created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     event_updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
